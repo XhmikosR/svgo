@@ -50,49 +50,16 @@
   ],
   "scripts": {
     "test": "c8 --reporter=html --reporter=text mocha \"test/*/_index.js\" \"**/*.test.js\" --ignore=\"node_modules/**\"",
-    "lint": "eslint . && prettier --list-different \"**/*.js\" --ignore-path .gitignore",
+    "lint": "xo",
     "typecheck": "tsc",
     "test-browser": "rollup -c && node ./test/browser.js",
     "test-regression": "NO_DIFF=1 node ./test/regression.js",
     "prepublishOnly": "rm -rf dist && rollup -c"
   },
   "prettier": {
-    "singleQuote": true
-  },
-  "eslintConfig": {
-    "ignorePatterns": [
-      "dist",
-      "fixtures"
-    ],
-    "parserOptions": {
-      "ecmaVersion": "2021"
-    },
-    "env": {
-      "node": true,
-      "es2021": true
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "overrides": [
-      {
-        "files": [
-          "rollup.config.js"
-        ],
-        "parserOptions": {
-          "sourceType": "module"
-        }
-      },
-      {
-        "files": [
-          "test/**/*.js",
-          "**/*.test.js"
-        ],
-        "env": {
-          "mocha": true
-        }
-      }
-    ]
+    "bracketSpacing": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
   },
   "dependencies": {
     "@trysound/sax": "0.1.1",
@@ -111,7 +78,6 @@
     "c8": "^7.6.0",
     "chai": "^4.3.0",
     "del": "^6.0.0",
-    "eslint": "^7.20.0",
     "get-stream": "^6.0.0",
     "mocha": "^8.3.0",
     "mock-stdin": "^1.0.0",
@@ -119,14 +85,65 @@
     "pixelmatch": "^5.2.1",
     "playwright": "^1.8.1",
     "pngjs": "^6.0.0",
-    "prettier": "^2.2.1",
     "rollup": "^2.39.0",
     "rollup-plugin-terser": "^7.0.2",
     "tar-stream": "^2.2.0",
-    "typescript": "^4.2.2"
+    "typescript": "^4.2.2",
+    "xo": "^0.38.2"
   },
   "engines": {
     "node": ">=10.13.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "xo": {
+    "space": true,
+    "prettier": true,
+    "rules": {
+      "camelcase": "off",
+      "capitalized-comments": "off",
+      "complexity": "off",
+      "default-case": "off",
+      "eqeqeq": [
+        "error",
+        "always",
+        {
+          "null": "ignore"
+        }
+      ],
+      "max-depth": "off",
+      "max-nested-callbacks": "off",
+      "max-params": "off",
+      "node/no-unsupported-features/node-builtins": "off",
+      "no-eq-null": "off",
+      "no-multi-assign": "off",
+      "no-negated-condition": "off",
+      "no-warning-comments": "off",
+      "promise/prefer-await-to-then": "off",
+      "spaced-comment": "off",
+      "unicorn/catch-error-name": "off",
+      "unicorn/explicit-length-check": "off",
+      "unicorn/filename-case": "off",
+      "unicorn/no-array-for-each": "off",
+      "unicorn/no-array-reduce": "off",
+      "unicorn/no-for-loop": "off",
+      "unicorn/prefer-add-event-listener": "off",
+      "unicorn/prefer-number-properties": "off",
+      "unicorn/prefer-reflect-apply": "off",
+      "unicorn/prevent-abbreviations": "off"
+    },
+    "overrides": [
+      {
+        "files": [
+          "test/**/*.js",
+          "**/*.test.js"
+        ],
+        "envs": [
+          "mocha"
+        ],
+        "rules": {
+          "no-unused-expressions": "off"
+        }
+      }
+    ]
+  }
 }
