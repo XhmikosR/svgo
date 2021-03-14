@@ -50,7 +50,9 @@
   ],
   "scripts": {
     "test": "c8 --reporter=html --reporter=text mocha \"test/*/_index.js\" \"**/*.test.js\" --ignore=\"node_modules/**\"",
-    "lint": "eslint . && prettier --list-different \"**/*.js\" --ignore-path .gitignore",
+    "lint": "eslint .",
+    "format:check": "prettier --list-different \"**/*.js\" --ignore-path .gitignore",
+    "format:fix": "prettier -w \"**/*.js\" --ignore-path .gitignore",
     "typecheck": "tsc",
     "test-browser": "rollup -c && node ./test/browser.js",
     "test-regression": "NO_DIFF=1 node ./test/regression.js",
@@ -72,8 +74,93 @@
       "es2021": true
     },
     "extends": [
-      "eslint:recommended"
+      "plugin:import/errors",
+      "plugin:import/warnings",
+      "plugin:unicorn/recommended"
     ],
+    "rules": {
+      "array-callback-return": [
+        "error",
+        {
+          "allowImplicit": true
+        }
+      ],
+      "block-scoped-var": "error",
+      "dot-notation": "error",
+      "eqeqeq": [
+        "error",
+        "always",
+        {
+          "null": "ignore"
+        }
+      ],
+      "no-else-return": [
+        "error",
+        {
+          "allowElseIf": false
+        }
+      ],
+      "no-lonely-if": "off",
+      "no-loss-of-precision": "error",
+      "no-misleading-character-class": "error",
+      "no-promise-executor-return": "error",
+      "no-return-await": "error",
+      "no-template-curly-in-string": "error",
+      "no-throw-literal": "error",
+      "no-unreachable-loop": "error",
+      "no-useless-catch": "error",
+      "no-var": "error",
+      "one-var": [
+        "error",
+        "never"
+      ],
+      "one-var-declaration-per-line": "error",
+      "object-shorthand": [
+        "error",
+        "always"
+      ],
+      "prefer-arrow-callback": [
+        "error",
+        {
+          "allowNamedFunctions": true
+        }
+      ],
+      "prefer-const": "error",
+      "prefer-numeric-literals": "error",
+      "prefer-rest-params": "error",
+      "prefer-spread": "error",
+      "prefer-object-spread": "error",
+      "prefer-destructuring": [
+        "error",
+        {
+          "VariableDeclarator": {
+            "array": false,
+            "object": true
+          },
+          "AssignmentExpression": {
+            "array": false,
+            "object": false
+          }
+        },
+        {
+          "enforceForRenamedProperties": false
+        }
+      ],
+      "unicorn/better-regex": "off",
+      "unicorn/consistent-destructuring": "off",
+      "unicorn/consistent-function-scoping": "off",
+      "unicorn/explicit-length-check": "off",
+      "unicorn/filename-case": "off",
+      "unicorn/no-array-for-each": "off",
+      "unicorn/no-array-reduce": "off",
+      "unicorn/no-for-loop": "off",
+      "unicorn/no-null": "off",
+      "unicorn/no-unused-properties": "error",
+      "unicorn/prefer-add-event-listener": "off",
+      "unicorn/prefer-reflect-apply": "off",
+      "unicorn/prevent-abbreviations": "off",
+      "yoda": "error"
+    },
     "overrides": [
       {
         "files": [
@@ -111,7 +198,9 @@
     "c8": "^7.6.0",
     "chai": "^4.3.0",
     "del": "^6.0.0",
-    "eslint": "^7.20.0",
+    "eslint": "^7.22.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-unicorn": "^28.0.2",
     "get-stream": "^6.0.0",
     "mocha": "^8.3.0",
     "mock-stdin": "^1.0.0",

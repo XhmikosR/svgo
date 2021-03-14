@@ -29,6 +29,7 @@ jobs:
             ${{ runner.os }}-node-${{ env.NODE }}-${{ hashFiles('package-lock.json') }}
       - run: npm ci
       - run: npm run lint
+      - run: npm run format:check
       - run: npm run typecheck
   regression:
     name: Test regressions
