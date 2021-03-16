@@ -4,8 +4,6 @@ env:
   NODE: 14
 on:
   push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
