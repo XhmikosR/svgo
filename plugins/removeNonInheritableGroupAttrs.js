@@ -7,9 +7,11 @@ exports.active = true;
 exports.description =
   'removes non-inheritable group’s presentational attributes';
 
-var inheritableAttrs = require('./_collections').inheritableAttrs,
-  attrsGroups = require('./_collections').attrsGroups,
-  applyGroups = require('./_collections').presentationNonInheritableGroupAttrs;
+const {
+  inheritableAttrs,
+  attrsGroups,
+  presentationNonInheritableGroupAttrs: applyGroups,
+} = require('./_collections');
 
 /**
  * Remove non-inheritable group's "presentation" attributes.
@@ -21,11 +23,11 @@ var inheritableAttrs = require('./_collections').inheritableAttrs,
  */
 exports.fn = function (item) {
   if (item.isElem('g')) {
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       if (
-        ~attrsGroups.presentation.indexOf(attr.name) &&
-        !~inheritableAttrs.indexOf(attr.name) &&
-        !~applyGroups.indexOf(attr.name)
+        attrsGroups.presentation.includes(attr.name) &&
+        !inheritableAttrs.includes(attr.name) &&
+        !applyGroups.includes(attr.name)
       ) {
         item.removeAttr(attr.name);
       }

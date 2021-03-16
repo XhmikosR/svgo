@@ -8,8 +8,8 @@ exports.active = true;
 
 exports.description = 'removes editors namespaces, elements and attributes';
 
-var editorNamespaces = require('./_collections').editorNamespaces,
-  prefixes = [];
+let { editorNamespaces } = require('./_collections');
+const prefixes = [];
 
 exports.params = {
   additionalNamespaces: [],
@@ -31,12 +31,12 @@ exports.params = {
  */
 exports.fn = function (item, params) {
   if (Array.isArray(params.additionalNamespaces)) {
-    editorNamespaces = editorNamespaces.concat(params.additionalNamespaces);
+    editorNamespaces = [...editorNamespaces, ...params.additionalNamespaces];
   }
 
   if (item.type === 'element') {
     if (item.isElem('svg')) {
-      item.eachAttr(function (attr) {
+      item.eachAttr((attr) => {
         const { prefix, local } = parseName(attr.name);
         if (prefix === 'xmlns' && editorNamespaces.includes(attr.value)) {
           prefixes.push(local);
@@ -48,7 +48,7 @@ exports.fn = function (item, params) {
     }
 
     // <* sodipodi:*="">
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       const { prefix } = parseName(attr.name);
       if (prefixes.includes(prefix)) {
         item.removeAttr(attr.name);

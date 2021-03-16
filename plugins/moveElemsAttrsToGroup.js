@@ -6,8 +6,7 @@ exports.active = true;
 
 exports.description = 'moves elements attributes to the existing group wrapper';
 
-var inheritableAttrs = require('./_collections').inheritableAttrs,
-  pathElems = require('./_collections.js').pathElems;
+const { inheritableAttrs, pathElems } = require('./_collections');
 
 /**
  * Collapse content's intersected and inheritable
@@ -35,33 +34,33 @@ var inheritableAttrs = require('./_collections').inheritableAttrs,
  */
 exports.fn = function (item) {
   if (item.isElem('g') && item.children.length > 1) {
-    var intersection = {},
-      hasTransform = false,
-      hasClip = item.hasAttr('clip-path') || item.hasAttr('mask'),
-      intersected = item.children.every(function (inner) {
-        if (inner.type === 'element' && inner.hasAttr()) {
-          // don't mess with possible styles (hack until CSS parsing is implemented)
-          if (inner.hasAttr('class')) return false;
-          if (!Object.keys(intersection).length) {
-            intersection = inner.attributes;
-          } else {
-            intersection = intersectInheritableAttrs(
-              intersection,
-              inner.attributes
-            );
+    let intersection = {};
+    let hasTransform = false;
+    const hasClip = item.hasAttr('clip-path') || item.hasAttr('mask');
+    const intersected = item.children.every((inner) => {
+      if (inner.type === 'element' && inner.hasAttr()) {
+        // don't mess with possible styles (hack until CSS parsing is implemented)
+        if (inner.hasAttr('class')) return false;
+        if (!Object.keys(intersection).length) {
+          intersection = inner.attributes;
+        } else {
+          intersection = intersectInheritableAttrs(
+            intersection,
+            inner.attributes
+          );
 
-            if (!intersection) return false;
-          }
-
-          return true;
+          if (!intersection) return false;
         }
-      }),
-      allPath = item.children.every(function (inner) {
-        return inner.isElem(pathElems);
-      });
+
+        return true;
+      }
+    });
+    const allPath = item.children.every((inner) => {
+      return inner.isElem(pathElems);
+    });
 
     if (intersected) {
-      item.children.forEach(function (g) {
+      item.children.forEach((g) => {
         for (const [name, value] of Object.entries(intersection)) {
           if ((!allPath && !hasClip) || name !== 'transform') {
             g.removeAttr(name);
@@ -95,7 +94,7 @@ exports.fn = function (item) {
  * @return {Object} intersected attrs object
  */
 function intersectInheritableAttrs(a, b) {
-  var c = {};
+  const c = {};
 
   for (const [name, value] of Object.entries(a)) {
     if (

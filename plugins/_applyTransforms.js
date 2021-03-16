@@ -41,14 +41,15 @@ const applyTransforms = (elem, pathData, params) => {
   const matrix = transformsMultiply(transform2js(elem.attr('transform').value));
   const stroke = elem.computedAttr('stroke');
   const id = elem.computedAttr('id');
-  const transformPrecision = params.transformPrecision;
+  const { transformPrecision } = params;
 
-  if (stroke && stroke != 'none') {
+  if (stroke && stroke !== 'none') {
     if (
       !params.applyTransformsStroked ||
-      ((matrix.data[0] != matrix.data[3] ||
-        matrix.data[1] != -matrix.data[2]) &&
-        (matrix.data[0] != -matrix.data[3] || matrix.data[1] != matrix.data[2]))
+      ((matrix.data[0] !== matrix.data[3] ||
+        matrix.data[1] !== -matrix.data[2]) &&
+        (matrix.data[0] !== -matrix.data[3] ||
+          matrix.data[1] !== matrix.data[2]))
     )
       return;
 
@@ -68,9 +69,11 @@ const applyTransforms = (elem, pathData, params) => {
       if (!hasStrokeWidth) return;
     }
 
-    const scale = +Math.sqrt(
-      matrix.data[0] * matrix.data[0] + matrix.data[1] * matrix.data[1]
-    ).toFixed(transformPrecision);
+    const scale = Number(
+      Math.sqrt(
+        matrix.data[0] * matrix.data[0] + matrix.data[1] * matrix.data[1]
+      ).toFixed(transformPrecision)
+    );
 
     if (scale !== 1) {
       const strokeWidth =
@@ -119,9 +122,8 @@ const applyTransforms = (elem, pathData, params) => {
 
   // remove transform attr
   elem.removeAttr('transform');
-
-  return;
 };
+
 exports.applyTransforms = applyTransforms;
 
 const transformAbsolutePoint = (matrix, x, y) => {
@@ -137,8 +139,8 @@ const transformRelativePoint = (matrix, x, y) => {
 };
 
 const applyMatrixToPathData = (pathData, matrix) => {
-  let start = [0, 0];
-  let cursor = [0, 0];
+  const start = [0, 0];
+  const cursor = [0, 0];
 
   for (const pathItem of pathData) {
     let { instruction: command, data: args } = pathItem;
@@ -152,6 +154,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       args[0] = x;
       args[1] = y;
     }
+
     if (command === 'm') {
       cursor[0] += args[0];
       cursor[1] += args[1];
@@ -168,6 +171,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       command = 'L';
       args = [args[0], cursor[1]];
     }
+
     if (command === 'h') {
       command = 'l';
       args = [args[0], 0];
@@ -179,6 +183,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       command = 'L';
       args = [cursor[0], args[0]];
     }
+
     if (command === 'v') {
       command = 'l';
       args = [0, args[0]];
@@ -192,6 +197,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       args[0] = x;
       args[1] = y;
     }
+
     if (command === 'l') {
       cursor[0] += args[0];
       cursor[1] += args[1];
@@ -214,6 +220,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       args[4] = x;
       args[5] = y;
     }
+
     if (command === 'c') {
       cursor[0] += args[4];
       cursor[1] += args[5];
@@ -239,6 +246,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       args[2] = x;
       args[3] = y;
     }
+
     if (command === 's') {
       cursor[0] += args[2];
       cursor[1] += args[3];
@@ -261,6 +269,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       args[2] = x;
       args[3] = y;
     }
+
     if (command === 'q') {
       cursor[0] += args[2];
       cursor[1] += args[3];
@@ -280,6 +289,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
       args[0] = x;
       args[1] = y;
     }
+
     if (command === 't') {
       cursor[0] += args[0];
       cursor[1] += args[1];
@@ -301,10 +311,12 @@ const applyMatrixToPathData = (pathData, matrix) => {
         args[1] = a;
         args[2] = rotation + (rotation > 0 ? -90 : 90);
       }
+
       const [x, y] = transformAbsolutePoint(matrix, args[5], args[6]);
       args[5] = x;
       args[6] = y;
     }
+
     if (command === 'a') {
       transformArc([0, 0], args, matrix);
       cursor[0] += args[5];
@@ -317,6 +329,7 @@ const applyMatrixToPathData = (pathData, matrix) => {
         args[1] = a;
         args[2] = rotation + (rotation > 0 ? -90 : 90);
       }
+
       const [x, y] = transformRelativePoint(matrix, args[5], args[6]);
       args[5] = x;
       args[6] = y;

@@ -39,51 +39,54 @@ exports.params = {
  * @author Nikolay Frantsev
  */
 exports.fn = function (item, params) {
-  var attrs = [],
-    sorted = {},
-    orderlen = params.order.length + 1,
-    xmlnsOrder = params.xmlnsOrder || 'front';
+  const attrs = [];
+  const sorted = {};
+  const orderlen = params.order.length + 1;
+  const xmlnsOrder = params.xmlnsOrder || 'front';
 
   if (item.type === 'element') {
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       attrs.push(attr);
     });
 
-    attrs.sort(function (a, b) {
+    attrs.sort((a, b) => {
       const { prefix: prefixA } = parseName(a.name);
       const { prefix: prefixB } = parseName(b.name);
-      if (prefixA != prefixB) {
+      if (prefixA !== prefixB) {
         // xmlns attributes implicitly have the prefix xmlns
-        if (xmlnsOrder == 'front') {
+        if (xmlnsOrder === 'front') {
           if (prefixA === 'xmlns') return -1;
           if (prefixB === 'xmlns') return 1;
         }
+
         return prefixA < prefixB ? -1 : 1;
       }
 
-      var aindex = orderlen;
-      var bindex = orderlen;
+      let aindex = orderlen;
+      let bindex = orderlen;
 
-      for (var i = 0; i < params.order.length; i++) {
-        if (a.name == params.order[i]) {
+      for (let i = 0; i < params.order.length; i++) {
+        if (a.name === params.order[i]) {
           aindex = i;
-        } else if (a.name.indexOf(params.order[i] + '-') === 0) {
+        } else if (a.name.startsWith(params.order[i] + '-')) {
           aindex = i + 0.5;
         }
-        if (b.name == params.order[i]) {
+
+        if (b.name === params.order[i]) {
           bindex = i;
-        } else if (b.name.indexOf(params.order[i] + '-') === 0) {
+        } else if (b.name.startsWith(params.order[i] + '-')) {
           bindex = i + 0.5;
         }
       }
 
-      if (aindex != bindex) {
+      if (aindex !== bindex) {
         return aindex - bindex;
       }
+
       return a.name < b.name ? -1 : 1;
     });
 
-    attrs.forEach(function (attr) {
+    attrs.forEach((attr) => {
       sorted[attr.name] = attr;
     });
 

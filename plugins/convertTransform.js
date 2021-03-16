@@ -21,13 +21,15 @@ exports.params = {
   negativeExtraSpace: false,
 };
 
-var cleanupOutData = require('../lib/svgo/tools').cleanupOutData,
-  transform2js = require('./_transforms.js').transform2js,
-  transformsMultiply = require('./_transforms.js').transformsMultiply,
-  matrixToTransform = require('./_transforms.js').matrixToTransform,
-  degRound,
-  floatRound,
-  transformRound;
+const { cleanupOutData } = require('../lib/svgo/tools');
+const {
+  transform2js,
+  transformsMultiply,
+  matrixToTransform,
+} = require('./_transforms.js');
+let degRound;
+let floatRound;
+let transformRound;
 
 /**
  * Convert matrices to the short aliases,
@@ -70,7 +72,7 @@ exports.fn = function (item, params) {
  * @param {Object} params plugin params
  */
 function convertTransform(item, attrName, params) {
-  var data = transform2js(item.attr(attrName).value);
+  let data = transform2js(item.attr(attrName).value);
   params = definePrecision(data, params);
 
   if (params.collapseIntoOne && data.length > 1) {
@@ -80,7 +82,7 @@ function convertTransform(item, attrName, params) {
   if (params.convertToShorts) {
     data = convertToShorts(data, params);
   } else {
-    data.forEach(roundTransform);
+    data.forEach((d) => roundTransform(d));
   }
 
   if (params.removeUseless) {
@@ -106,27 +108,29 @@ function convertTransform(item, attrName, params) {
  * @return {Array} output array
  */
 function definePrecision(data, params) {
-  var matrixData = data.reduce(getMatrixData, []),
-    significantDigits = params.transformPrecision;
+  const matrixData = data.reduce(getMatrixData, []);
+  let significantDigits = params.transformPrecision;
 
   // Clone params so it don't affect other elements transformations.
-  params = Object.assign({}, params);
+  params = { ...params };
 
   // Limit transform precision with matrix one. Calculating with larger precision doesn't add any value.
   if (matrixData.length) {
     params.transformPrecision = Math.min(
       params.transformPrecision,
-      Math.max.apply(Math, matrixData.map(floatDigits)) ||
-        params.transformPrecision
+      Math.max.apply(
+        Math,
+        matrixData.map((d) => floatDigits(d))
+      ) || params.transformPrecision
     );
 
     significantDigits = Math.max.apply(
       Math,
-      matrixData.map(function (n) {
-        return String(n).replace(/\D+/g, '').length; // Number of digits in a number. 123.45 → 5
-      })
+      // Number of digits in a number. 123.45 → 5
+      matrixData.map((n) => String(n).replace(/\D+/g, '').length)
     );
   }
+
   // No sense in angle precision more then number of significant digits in matrix.
   if (!('degPrecision' in params)) {
     params.degPrecision = Math.max(
@@ -159,7 +163,7 @@ function definePrecision(data, params) {
  * @return {Array} output array
  */
 function getMatrixData(a, b) {
-  return b.name == 'matrix' ? a.concat(b.data.slice(0, 4)) : a;
+  return b.name === 'matrix' ? [...a, ...b.data.slice(0, 4)] : a;
 }
 
 /**
@@ -177,19 +181,20 @@ function floatDigits(n) {
  * @return {Array} output array
  */
 function convertToShorts(transforms, params) {
-  for (var i = 0; i < transforms.length; i++) {
-    var transform = transforms[i];
+  for (let i = 0; i < transforms.length; i++) {
+    let transform = transforms[i];
 
     // convert matrix to the short aliases
     if (params.matrixToTransform && transform.name === 'matrix') {
-      var decomposed = matrixToTransform(transform, params);
+      const decomposed = matrixToTransform(transform, params);
       if (
-        decomposed != transform &&
+        decomposed !== transform &&
         js2transform(decomposed, params).length <=
           js2transform([transform], params).length
       ) {
         transforms.splice.apply(transforms, [i, 1].concat(decomposed));
       }
+
       transform = transforms[i];
     }
 
@@ -254,24 +259,24 @@ function convertToShorts(transforms, params) {
  * @return {Array} output array
  */
 function removeUseless(transforms) {
-  return transforms.filter(function (transform) {
+  return transforms.filter((transform) => {
     // translate(0), rotate(0[, cx, cy]), skewX(0), skewY(0)
     if (
-      (['translate', 'rotate', 'skewX', 'skewY'].indexOf(transform.name) > -1 &&
-        (transform.data.length == 1 || transform.name == 'rotate') &&
+      (['translate', 'rotate', 'skewX', 'skewY'].includes(transform.name) &&
+        (transform.data.length === 1 || transform.name === 'rotate') &&
         !transform.data[0]) ||
       // translate(0, 0)
-      (transform.name == 'translate' &&
+      (transform.name === 'translate' &&
         !transform.data[0] &&
         !transform.data[1]) ||
       // scale(1)
-      (transform.name == 'scale' &&
-        transform.data[0] == 1 &&
-        (transform.data.length < 2 || transform.data[1] == 1)) ||
+      (transform.name === 'scale' &&
+        transform.data[0] === 1 &&
+        (transform.data.length < 2 || transform.data[1] === 1)) ||
       // matrix(1 0 0 1 0 0)
-      (transform.name == 'matrix' &&
-        transform.data[0] == 1 &&
-        transform.data[3] == 1 &&
+      (transform.name === 'matrix' &&
+        transform.data[0] === 1 &&
+        transform.data[3] === 1 &&
         !(
           transform.data[1] ||
           transform.data[2] ||
@@ -294,10 +299,10 @@ function removeUseless(transforms) {
  * @return {String} output string
  */
 function js2transform(transformJS, params) {
-  var transformString = '';
+  let transformString = '';
 
   // collect output value string
-  transformJS.forEach(function (transform) {
+  transformJS.forEach((transform) => {
     roundTransform(transform);
     transformString +=
       (transformString && ' ') +
@@ -316,9 +321,10 @@ function roundTransform(transform) {
       transform.data = floatRound(transform.data);
       break;
     case 'rotate':
-      transform.data = degRound(transform.data.slice(0, 1)).concat(
-        floatRound(transform.data.slice(1))
-      );
+      transform.data = [
+        ...degRound(transform.data.slice(0, 1)),
+        ...floatRound(transform.data.slice(1)),
+      ];
       break;
     case 'skewX':
     case 'skewY':
@@ -328,11 +334,13 @@ function roundTransform(transform) {
       transform.data = transformRound(transform.data);
       break;
     case 'matrix':
-      transform.data = transformRound(transform.data.slice(0, 4)).concat(
-        floatRound(transform.data.slice(4))
-      );
+      transform.data = [
+        ...transformRound(transform.data.slice(0, 4)),
+        ...floatRound(transform.data.slice(4)),
+      ];
       break;
   }
+
   return transform;
 }
 
@@ -343,7 +351,7 @@ function roundTransform(transform) {
  * @return {Array} output data array
  */
 function round(data) {
-  return data.map(Math.round);
+  return data.map((d) => Math.round(d));
 }
 
 /**
@@ -357,18 +365,19 @@ function round(data) {
  */
 function smartRound(precision, data) {
   for (
-    var i = data.length,
-      tolerance = +Math.pow(0.1, precision).toFixed(precision);
+    let i = data.length,
+      tolerance = Number((0.1 ** precision).toFixed(precision));
     i--;
 
   ) {
-    if (data[i].toFixed(precision) != data[i]) {
-      var rounded = +data[i].toFixed(precision - 1);
+    if (data[i].toFixed(precision) !== data[i]) {
+      const rounded = Number(data[i].toFixed(precision - 1));
       data[i] =
-        +Math.abs(rounded - data[i]).toFixed(precision + 1) >= tolerance
-          ? +data[i].toFixed(precision)
+        Number(Math.abs(rounded - data[i]).toFixed(precision + 1)) >= tolerance
+          ? Number(data[i].toFixed(precision))
           : rounded;
     }
   }
+
   return data;
 }

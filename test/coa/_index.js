@@ -28,7 +28,7 @@ function runProgram(args) {
   return program.parseAsync([0, 1, ...args]);
 }
 
-describe('coa', function () {
+describe('coa', () => {
   let output;
 
   beforeEach(async () => {
@@ -60,6 +60,7 @@ describe('coa', function () {
     global.console.error = (message) => {
       output += message;
     };
+
     global.process.exit = noop;
   }
 
@@ -181,7 +182,7 @@ describe('coa', function () {
       tempFolder,
       '--quiet',
     ]);
-    let optimizedWeight = calcFolderSvgWeight(svgFolderPath);
+    const optimizedWeight = calcFolderSvgWeight(svgFolderPath);
     expect(optimizedWeight).lte(initWeight);
   });
 
@@ -223,6 +224,7 @@ describe('coa', function () {
       if (!fs.existsSync(emptyFolderPath)) {
         fs.mkdirSync(emptyFolderPath);
       }
+
       try {
         await runProgram(['--folder', emptyFolderPath, '--quiet']);
       } catch (error) {

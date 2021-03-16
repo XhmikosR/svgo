@@ -234,10 +234,12 @@ exports.fn = function (item, params) {
       if (item.hasAttr('d') === false) {
         return false;
       }
+
       const pathData = parsePathData(item.attr('d').value);
       if (pathData.length === 0) {
         return false;
       }
+
       // keep single point paths for markers
       if (
         pathData.length === 1 &&
@@ -246,6 +248,7 @@ exports.fn = function (item, params) {
       ) {
         return false;
       }
+
       return true;
     }
 

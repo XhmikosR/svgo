@@ -6,16 +6,16 @@ exports.active = true;
 
 exports.description = 'collapses useless groups';
 
-var collections = require('./_collections'),
-  attrsInheritable = collections.inheritableAttrs,
-  animationElems = collections.elemsGroups.animation;
+const collections = require('./_collections');
+const attrsInheritable = collections.inheritableAttrs;
+const animationElems = collections.elemsGroups.animation;
 
 function hasAnimatedAttr(item) {
   return (
     (item.isElem(animationElems) && item.hasAttr('attributeName', this)) ||
     (item.type === 'element' &&
       item.children.length !== 0 &&
-      item.children.some(hasAnimatedAttr, this))
+      item.children.some((c) => hasAnimatedAttr(c), this))
   );
 }
 
@@ -49,12 +49,12 @@ exports.fn = function (item) {
     !item.isElem('switch') &&
     item.children.length !== 0
   ) {
-    item.children.forEach(function (g, i) {
+    item.children.forEach((g, i) => {
       // non-empty groups
       if (g.isElem('g') && g.children.length !== 0) {
         // move group attibutes to the single child element
         if (g.hasAttr() && g.children.length === 1) {
-          var inner = g.children[0];
+          const inner = g.children[0];
 
           if (
             inner.type === 'element' &&
@@ -66,18 +66,18 @@ exports.fn = function (item) {
                 !g.hasAttr('transform') &&
                 !inner.hasAttr('transform')))
           ) {
-            g.eachAttr(function (attr) {
-              if (g.children.some(hasAnimatedAttr, attr.name)) return;
+            g.eachAttr((attr) => {
+              if (g.children.some((c) => hasAnimatedAttr(c), attr.name)) return;
 
               if (!inner.hasAttr(attr.name)) {
                 inner.addAttr(attr);
-              } else if (attr.name == 'transform') {
+              } else if (attr.name === 'transform') {
                 inner.attr(attr.name).value =
                   attr.value + ' ' + inner.attr(attr.name).value;
               } else if (inner.hasAttr(attr.name, 'inherit')) {
                 inner.attr(attr.name).value = attr.value;
               } else if (
-                attrsInheritable.indexOf(attr.name) < 0 &&
+                !attrsInheritable.includes(attr.name) &&
                 !inner.hasAttr(attr.name, attr.value)
               ) {
                 return;
@@ -91,9 +91,7 @@ exports.fn = function (item) {
         // collapse groups without attributes
         if (
           !g.hasAttr() &&
-          !g.children.some(function (item) {
-            return item.isElem(animationElems);
-          })
+          !g.children.some((item) => item.isElem(animationElems))
         ) {
           item.spliceContent(i, 1, g.children);
         }

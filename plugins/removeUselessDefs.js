@@ -6,7 +6,7 @@ exports.active = true;
 
 exports.description = 'removes elements in <defs> without id';
 
-var nonRendering = require('./_collections').elemsGroups.nonRendering;
+const { nonRendering } = require('./_collections').elemsGroups;
 
 /**
  * Removes content of defs and properties that aren't rendered directly without ids.

@@ -1,6 +1,10 @@
+#!/usr/bin/env node
+
+'use strict';
+
 const fs = require('fs');
-const http = require('http');
 const assert = require('assert');
+const { createServer } = require('http');
 const { chromium } = require('playwright');
 
 const fixture = `<svg xmlns="http://www.w3.org/2000/svg">
@@ -33,15 +37,17 @@ globalThis.result = result.data;
 </script>
 `;
 
-const server = http.createServer((req, res) => {
+const server = createServer((req, res) => {
   if (req.url === '/') {
     res.setHeader('Content-Type', 'text/html');
     res.end(content);
   }
+
   if (req.url === '/svgo.browser.js') {
     res.setHeader('Content-Type', 'application/javascript');
     res.end(fs.readFileSync('./dist/svgo.browser.js'));
   }
+
   res.end();
 });
 

@@ -13,8 +13,8 @@ exports.params = {
 
 exports.description = 'inline styles (additional options)';
 
-var csstree = require('css-tree'),
-  cssTools = require('../lib/css-tools');
+const csstree = require('css-tree');
+const cssTools = require('../lib/css-tools');
 
 /**
  * Moves + merges styles from style elements to element styles
@@ -42,17 +42,17 @@ var csstree = require('css-tree'),
  */
 exports.fn = function (document, opts) {
   // collect <style/>s
-  var styleEls = document.querySelectorAll('style');
+  const styleEls = document.querySelectorAll('style');
 
   //no <styles/>s, nothing to do
   if (styleEls === null) {
     return document;
   }
 
-  var styles = [],
-    selectors = [];
+  const styles = [];
+  let selectors = [];
 
-  for (var styleEl of styleEls) {
+  for (const styleEl of styleEls) {
     // values other than the empty string or text/css are not used
     if (
       styleEl.hasAttr('type') &&
@@ -61,55 +61,60 @@ exports.fn = function (document, opts) {
     ) {
       continue;
     }
+
     // skip empty <style/>s or <foreignObject> content.
     if (styleEl.children.length === 0 || styleEl.closestElem('foreignObject')) {
       continue;
     }
 
-    var cssStr = cssTools.getCssStr(styleEl);
+    const cssStr = cssTools.getCssStr(styleEl);
 
     // collect <style/>s and their css ast
-    var cssAst = {};
+    let cssAst = {};
     try {
       cssAst = csstree.parse(cssStr, {
         parseValue: false,
         parseCustomProperty: false,
       });
-    } catch (parseError) {
+    } catch {
       // console.warn('Warning: Parse error of styles of <style/> element, skipped. Error details: ' + parseError);
       continue;
     }
 
     styles.push({
-      styleEl: styleEl,
-      cssAst: cssAst,
+      styleEl,
+      cssAst,
     });
 
-    selectors = selectors.concat(cssTools.flattenToSelectors(cssAst));
+    selectors = [...selectors, ...cssTools.flattenToSelectors(cssAst)];
   }
 
   // filter for mediaqueries to be used or without any mediaquery
-  var selectorsMq = cssTools.filterByMqs(selectors, opts.useMqs);
+  const selectorsMq = cssTools.filterByMqs(selectors, opts.useMqs);
 
   // filter for pseudo elements to be used
-  var selectorsPseudo = cssTools.filterByPseudos(selectorsMq, opts.usePseudos);
+  const selectorsPseudo = cssTools.filterByPseudos(
+    selectorsMq,
+    opts.usePseudos
+  );
 
   // remove PseudoClass from its SimpleSelector for proper matching
   cssTools.cleanPseudos(selectorsPseudo);
 
   // stable sort selectors
-  var sortedSelectors = cssTools.sortSelectors(selectorsPseudo).reverse();
+  const sortedSelectors = cssTools.sortSelectors(selectorsPseudo).reverse();
 
-  var selector, selectedEl;
+  let selector;
+  let selectedEl;
 
   // match selectors
   for (selector of sortedSelectors) {
-    var selectorStr = csstree.generate(selector.item.data),
-      selectedEls = null;
+    const selectorStr = csstree.generate(selector.item.data);
+    let selectedEls = null;
 
     try {
       selectedEls = document.querySelectorAll(selectorStr);
-    } catch (selectError) {
+    } catch {
       // console.warn('Warning: Syntax error when trying to select \n\n' + selectorStr + '\n\n, skipped. Error details: ' + selectError);
       continue;
     }
@@ -146,12 +151,12 @@ exports.fn = function (document, opts) {
       // merge declarations
       csstree.walk(selector.rule, {
         visit: 'Declaration',
-        enter: function (styleCsstreeDeclaration) {
+        enter(styleCsstreeDeclaration) {
           // existing inline styles have higher priority
           // no inline styles, external styles,                                    external styles used
           // inline styles,    external styles same   priority as inline styles,   inline   styles used
           // inline styles,    external styles higher priority than inline styles, external styles used
-          var styleDeclaration = cssTools.csstreeToStyleDeclaration(
+          const styleDeclaration = cssTools.csstreeToStyleDeclaration(
             styleCsstreeDeclaration
           );
           if (
@@ -161,6 +166,7 @@ exports.fn = function (document, opts) {
           ) {
             return;
           }
+
           selectedEl.style.setProperty(
             styleDeclaration.name,
             styleDeclaration.value,
@@ -201,10 +207,11 @@ exports.fn = function (document, opts) {
 
     for (selectedEl of selector.selectedEls) {
       // class
-      var firstSubSelector = selector.item.data.children.first();
+      const firstSubSelector = selector.item.data.children.first();
       if (firstSubSelector.type === 'ClassSelector') {
         selectedEl.class.remove(firstSubSelector.name);
       }
+
       // clean up now empty class attributes
       if (typeof selectedEl.class.item(0) === 'undefined') {
         selectedEl.removeAttr('class');
@@ -218,10 +225,10 @@ exports.fn = function (document, opts) {
   }
 
   // clean up now empty elements
-  for (var style of styles) {
+  for (const style of styles) {
     csstree.walk(style.cssAst, {
       visit: 'Rule',
-      enter: function (node, item, list) {
+      enter(node, item, list) {
         // clean up <style/> atrules without any rulesets left
         if (
           node.type === 'Atrule' &&
@@ -242,7 +249,7 @@ exports.fn = function (document, opts) {
 
     if (style.cssAst.children.isEmpty()) {
       // clean up now emtpy <style/>s
-      var styleParentEl = style.styleEl.parentNode;
+      const styleParentEl = style.styleEl.parentNode;
       styleParentEl.spliceContent(
         styleParentEl.children.indexOf(style.styleEl),
         1
@@ -253,7 +260,7 @@ exports.fn = function (document, opts) {
         styleParentEl.children.length === 0
       ) {
         // also clean up now empty <def/>s
-        var defsParentEl = styleParentEl.parentNode;
+        const defsParentEl = styleParentEl.parentNode;
         defsParentEl.spliceContent(
           defsParentEl.children.indexOf(styleParentEl),
           1

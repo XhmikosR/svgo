@@ -18,15 +18,15 @@ exports.description = 'converts non-eccentric <ellipse>s to <circle>s';
  */
 exports.fn = function (item) {
   if (item.isElem('ellipse')) {
-    var rx = (item.hasAttr('rx') && item.attr('rx').value) || 0;
-    var ry = (item.hasAttr('ry') && item.attr('ry').value) || 0;
+    const rx = (item.hasAttr('rx') && item.attr('rx').value) || 0;
+    const ry = (item.hasAttr('ry') && item.attr('ry').value) || 0;
 
     if (
       rx === ry ||
       rx === 'auto' ||
       ry === 'auto' // SVG2
     ) {
-      var radius = rx !== 'auto' ? rx : ry;
+      const radius = rx !== 'auto' ? rx : ry;
       item.renameElem('circle');
       item.removeAttr(['rx', 'ry']);
       item.addAttr({
@@ -35,5 +35,4 @@ exports.fn = function (item) {
       });
     }
   }
-  return;
 };

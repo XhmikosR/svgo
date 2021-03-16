@@ -6,9 +6,9 @@ exports.active = true;
 
 exports.description = 'moves some group attributes to the content elements';
 
-var collections = require('./_collections.js'),
-  pathElems = collections.pathElems.concat(['g', 'text']),
-  referencesProps = collections.referencesProps;
+const collections = require('./_collections.js');
+const pathElems = [...collections.pathElems, 'g', 'text'];
+const { referencesProps } = collections;
 
 /**
  * Move group attrs to the content elements.
@@ -35,15 +35,16 @@ exports.fn = function (item) {
     item.isElem('g') &&
     item.children.length !== 0 &&
     item.hasAttr('transform') &&
-    !item.someAttr(function (attr) {
-      return ~referencesProps.indexOf(attr.name) && ~attr.value.indexOf('url(');
-    }) &&
-    item.children.every(function (inner) {
-      return inner.isElem(pathElems) && !inner.hasAttr('id');
-    })
+    !item.someAttr(
+      (attr) =>
+        referencesProps.includes(attr.name) && attr.value.includes('url(')
+    ) &&
+    item.children.every(
+      (inner) => inner.isElem(pathElems) && !inner.hasAttr('id')
+    )
   ) {
-    item.children.forEach(function (inner) {
-      var attr = item.attr('transform');
+    item.children.forEach((inner) => {
+      const attr = item.attr('transform');
       if (inner.hasAttr('transform')) {
         inner.attr('transform').value =
           attr.value + ' ' + inner.attr('transform').value;

@@ -17,24 +17,27 @@ exports.description = 'Sorts children of <defs> to improve compression';
  */
 exports.fn = function (item) {
   if (item.isElem('defs')) {
-    var frequency = item.children.reduce(function (frequency, child) {
+    const frequency = item.children.reduce((frequency, child) => {
       if (child.name in frequency) {
         frequency[child.name]++;
       } else {
         frequency[child.name] = 1;
       }
+
       return frequency;
     }, {});
-    item.children.sort(function (a, b) {
-      var frequencyComparison = frequency[b.name] - frequency[a.name];
+    item.children.sort((a, b) => {
+      const frequencyComparison = frequency[b.name] - frequency[a.name];
       if (frequencyComparison !== 0) {
         return frequencyComparison;
       }
-      var lengthComparison = b.name.length - a.name.length;
+
+      const lengthComparison = b.name.length - a.name.length;
       if (lengthComparison !== 0) {
         return lengthComparison;
       }
-      return a.name != b.name ? (a.name > b.name ? -1 : 1) : 0;
+
+      return a.name !== b.name ? (a.name > b.name ? -1 : 1) : 0;
     });
     return true;
   }

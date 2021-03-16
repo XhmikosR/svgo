@@ -58,9 +58,11 @@ exports.description =
  * @author Bradley Mease
  */
 exports.fn = function (item, params) {
-  var selectors = Array.isArray(params.selectors) ? params.selectors : [params];
+  const selectors = Array.isArray(params.selectors)
+    ? params.selectors
+    : [params];
 
-  selectors.map(function (i) {
+  selectors.forEach((i) => {
     if (item.matches(i.selector)) {
       item.removeAttr(i.attributes);
     }

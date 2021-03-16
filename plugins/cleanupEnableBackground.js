@@ -23,9 +23,9 @@ exports.description =
  * @author Kir Belevich
  */
 exports.fn = function (data) {
-  var regEnableBackground = /^new\s0\s0\s([-+]?\d*\.?\d+([eE][-+]?\d+)?)\s([-+]?\d*\.?\d+([eE][-+]?\d+)?)$/,
-    hasFilter = false,
-    elems = ['svg', 'mask', 'pattern'];
+  const regEnableBackground = /^new\s0\s0\s([-+]?\d*\.?\d+([eE][-+]?\d+)?)\s([-+]?\d*\.?\d+([eE][-+]?\d+)?)$/;
+  let hasFilter = false;
+  const elems = ['svg', 'mask', 'pattern'];
 
   function checkEnableBackground(item) {
     if (
@@ -34,20 +34,19 @@ exports.fn = function (data) {
       item.hasAttr('width') &&
       item.hasAttr('height')
     ) {
-      var match = item
+      const match = item
         .attr('enable-background')
         .value.match(regEnableBackground);
 
-      if (match) {
-        if (
-          item.attr('width').value === match[1] &&
-          item.attr('height').value === match[3]
-        ) {
-          if (item.isElem('svg')) {
-            item.removeAttr('enable-background');
-          } else {
-            item.attr('enable-background').value = 'new';
-          }
+      if (
+        match &&
+        item.attr('width').value === match[1] &&
+        item.attr('height').value === match[3]
+      ) {
+        if (item.isElem('svg')) {
+          item.removeAttr('enable-background');
+        } else {
+          item.attr('enable-background').value = 'new';
         }
       }
     }
@@ -60,7 +59,7 @@ exports.fn = function (data) {
   }
 
   function monkeys(items, fn) {
-    items.children.forEach(function (item) {
+    items.children.forEach((item) => {
       fn(item);
 
       if (item.children) {
@@ -70,7 +69,7 @@ exports.fn = function (data) {
     return items;
   }
 
-  var firstStep = monkeys(data, function (item) {
+  const firstStep = monkeys(data, (item) => {
     checkEnableBackground(item);
     if (!hasFilter) {
       checkForFilter(item);
@@ -79,7 +78,7 @@ exports.fn = function (data) {
 
   return hasFilter
     ? firstStep
-    : monkeys(firstStep, function (item) {
+    : monkeys(firstStep, (item) => {
         //we don't need 'enable-background' if we have no filters
         item.removeAttr('enable-background');
       });

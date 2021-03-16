@@ -1,6 +1,6 @@
 'use strict';
 
-var JSAPI = require('../lib/svgo/jsAPI');
+const JSAPI = require('../lib/svgo/jsAPI');
 
 exports.type = 'full';
 
@@ -25,6 +25,7 @@ exports.fn = function (data) {
     if (!item.isElem('path') || !item.hasAttr('d')) {
       return;
     }
+
     const d = item.attr('d').value;
     const fill = (item.hasAttr('fill') && item.attr('fill').value) || '';
     const stroke = (item.hasAttr('stroke') && item.attr('stroke').value) || '';
@@ -34,6 +35,7 @@ exports.fn = function (data) {
       seen.set(key, { elem: item, reused: false });
       return;
     }
+
     if (!hasSeen.reused) {
       hasSeen.reused = true;
       if (!hasSeen.elem.hasAttr('id')) {
@@ -42,8 +44,10 @@ exports.fn = function (data) {
           value: 'reuse-' + count++,
         });
       }
+
       defs.push(hasSeen.elem);
     }
+
     convertToUse(item, hasSeen.elem.attr('id').value);
   });
   if (defs.length > 0) {
@@ -61,7 +65,7 @@ exports.fn = function (data) {
       // Remove class and style before copying to avoid circular refs in
       // JSON.stringify. This is fine because we don't actually want class or
       // style information to be copied.
-      const style = def.style;
+      const { style } = def;
       const defClass = def.class;
       delete def.style;
       delete def.class;
@@ -75,6 +79,7 @@ exports.fn = function (data) {
       def.removeAttr('id');
     }
   }
+
   return data;
 };
 
@@ -95,7 +100,7 @@ function convertToUse(item, href) {
 /** */
 function traverse(parent, callback) {
   if (parent.type === 'root' || parent.type === 'element') {
-    for (let child of parent.children) {
+    for (const child of parent.children) {
       callback(child);
       traverse(child, callback);
     }

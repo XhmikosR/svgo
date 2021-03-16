@@ -1,7 +1,9 @@
+#!/usr/bin/env node
+
 'use strict';
 
-const fs = require('fs');
-const util = require('util');
+const fs = require('fs').promises;
+const { promisify } = require('util');
 const zlib = require('zlib');
 const stream = require('stream');
 const fetch = require('node-fetch');
@@ -12,7 +14,7 @@ const { PNG } = require('pngjs');
 const pixelmatch = require('pixelmatch');
 const { optimize } = require('../lib/svgo.js');
 
-const pipeline = util.promisify(stream.pipeline);
+const pipeline = promisify(stream.pipeline);
 
 const readSvgFiles = async () => {
   const svgFiles = [];
@@ -29,6 +31,7 @@ const readSvgFiles = async () => {
           const string = await getStream(stream);
           svgFiles.push([name, string]);
         }
+
         if (header.name.endsWith('.svgz')) {
           // strip folder and extension
           const name = header.name.slice('svg/'.length, -'.svgz'.length);
@@ -40,6 +43,7 @@ const readSvgFiles = async () => {
       console.error(error);
       process.exit(1);
     }
+
     stream.resume();
     next();
   });
@@ -68,9 +72,11 @@ const optimizeSvgFiles = (svgFiles) => {
       continue;
     }
   }
+
   if (failed !== 0) {
-    throw Error(`Failed to optimize ${failed} cases`);
+    throw new Error(`Failed to optimize ${failed} cases`);
   }
+
   return optimizedFiles;
 };
 
@@ -82,6 +88,7 @@ const chunkInto = (array, chunksCount) => {
     const offset = i * chunkSize;
     result.push(array.slice(offset, offset + chunkSize));
   }
+
   return result;
 };
 
@@ -122,6 +129,7 @@ const runTests = async ({ svgFiles }) => {
       skipped += 1;
       return;
     }
+
     const optimized = optimizedFiles.get(name);
     const width = 960;
     const height = 720;
@@ -154,14 +162,12 @@ const runTests = async ({ svgFiles }) => {
       mismatched += 1;
       console.error(`${name} is mismatched`);
       if (process.env.NO_DIFF == null) {
-        await fs.promises.mkdir('diffs', { recursive: true });
-        await fs.promises.writeFile(
-          `diffs/${name}.diff.png`,
-          PNG.sync.write(diff)
-        );
+        await fs.mkdir('diffs', { recursive: true });
+        await fs.writeFile(`diffs/${name}.diff.png`, PNG.sync.write(diff));
       }
     }
   };
+
   const browser = await chromium.launch();
   const context = await browser.newContext({ javaScriptEnabled: false });
   const chunks = chunkInto(svgFiles, 8);
@@ -171,6 +177,7 @@ const runTests = async ({ svgFiles }) => {
       for (const [name, string] of chunk) {
         await processFile(page, name, string);
       }
+
       await page.close();
     })
   );

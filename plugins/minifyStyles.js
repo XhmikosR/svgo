@@ -19,7 +19,7 @@ exports.params = {
   },
 };
 
-var csso = require('csso');
+const csso = require('csso');
 
 /**
  * Minifies styles (<style> element + style attribute) using CSSO
@@ -29,14 +29,14 @@ var csso = require('csso');
 exports.fn = function (ast, options) {
   options = options || {};
 
-  var minifyOptionsForStylesheet = cloneObject(options);
-  var minifyOptionsForAttribute = cloneObject(options);
-  var elems = findStyleElems(ast);
+  const minifyOptionsForStylesheet = cloneObject(options);
+  const minifyOptionsForAttribute = cloneObject(options);
+  const elems = findStyleElems(ast);
 
   minifyOptionsForStylesheet.usage = collectUsageData(ast, options);
   minifyOptionsForAttribute.usage = null;
 
-  elems.forEach(function (elem) {
+  elems.forEach((elem) => {
     if (elem.isElem('style')) {
       if (
         elem.children[0].type === 'text' ||
@@ -46,7 +46,7 @@ exports.fn = function (ast, options) {
         const minified = csso.minify(styleCss, minifyOptionsForStylesheet).css;
         // preserve cdata if necessary
         // TODO split cdata -> text optimisation into separate plugin
-        if (styleCss.indexOf('>') >= 0 || styleCss.indexOf('<') >= 0) {
+        if (styleCss.includes('>') || styleCss.includes('<')) {
           elem.children[0].type = 'cdata';
           elem.children[0].value = minified;
         } else {
@@ -56,7 +56,7 @@ exports.fn = function (ast, options) {
       }
     } else {
       // style attribute
-      var elemStyle = elem.attr('style').value;
+      const elemStyle = elem.attr('style').value;
 
       elem.attr('style').value = csso.minifyBlock(
         elemStyle,
@@ -74,8 +74,8 @@ function cloneObject(obj) {
 
 function findStyleElems(ast) {
   function walk(items, styles) {
-    for (var i = 0; i < items.children.length; i++) {
-      var item = items.children[i];
+    for (let i = 0; i < items.children.length; i++) {
+      const item = items.children[i];
 
       // go deeper
       if (item.children) {
@@ -108,9 +108,11 @@ function shouldFilter(options, name) {
 }
 
 function collectUsageData(ast, options) {
+  let safe = true;
+
   function walk(items, usageData) {
-    for (var i = 0; i < items.children.length; i++) {
-      var item = items.children[i];
+    for (let i = 0; i < items.children.length; i++) {
+      const item = items.children[i];
 
       // go deeper
       if (item.children) {
@@ -133,14 +135,14 @@ function collectUsageData(ast, options) {
             .attr('class')
             .value.replace(/^\s+|\s+$/g, '')
             .split(/\s+/)
-            .forEach(function (className) {
+            .forEach((className) => {
               usageData.classes[className] = true;
             });
         }
 
         if (
           item.attrs &&
-          Object.keys(item.attrs).some(function (name) {
+          Object.keys(item.attrs).some((name) => {
             return /^on/i.test(name);
           })
         ) {
@@ -152,10 +154,9 @@ function collectUsageData(ast, options) {
     return usageData;
   }
 
-  var safe = true;
-  var usageData = {};
-  var hasData = false;
-  var rawData = walk(ast, {
+  const usageData = {};
+  let hasData = false;
+  const rawData = walk(ast, {
     ids: Object.create(null),
     classes: Object.create(null),
     tags: Object.create(null),

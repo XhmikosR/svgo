@@ -53,7 +53,7 @@ exports.params = {
  */
 exports.fn = function (item, params) {
   // wrap params in an array if not already
-  ['id', 'class'].forEach(function (key) {
+  ['id', 'class'].forEach((key) => {
     if (!Array.isArray(params[key])) {
       params[key] = [params[key]];
     }

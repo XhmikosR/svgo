@@ -13,17 +13,18 @@ exports.params = {
   convertToPx: true,
 };
 
-var regNumericValues = /^([-+]?\d*\.?\d+([eE][-+]?\d+)?)(px|pt|pc|mm|cm|m|in|ft|em|ex|%)?$/,
-  regSeparator = /\s+,?\s*|,\s*/,
-  removeLeadingZero = require('../lib/svgo/tools').removeLeadingZero,
-  absoluteLengths = {
-    // relative to px
-    cm: 96 / 2.54,
-    mm: 96 / 25.4,
-    in: 96,
-    pt: 4 / 3,
-    pc: 16,
-  };
+const { removeLeadingZero } = require('../lib/svgo/tools');
+
+const regNumericValues = /^([-+]?\d*\.?\d+([eE][-+]?\d+)?)(px|pt|pc|mm|cm|m|in|ft|em|ex|%)?$/;
+const regSeparator = /\s+,?\s*|,\s*/;
+const absoluteLengths = {
+  // relative to px
+  cm: 96 / 2.54,
+  mm: 96 / 25.4,
+  in: 96,
+  pt: 4 / 3,
+  pc: 16,
+};
 
 /**
  * Round list of values to the fixed precision.
@@ -79,29 +80,25 @@ exports.fn = function (item, params) {
   }
 
   function roundValues($prop) {
-    var num,
-      units,
-      match,
-      matchNew,
-      lists = $prop.value,
-      listsArr = lists.split(regSeparator),
-      roundedListArr = [],
-      roundedList;
+    let num;
+    let units;
+    const listsArr = $prop.value.split(regSeparator);
+    const roundedListArr = [];
 
-    listsArr.forEach(function (elem) {
-      match = elem.match(regNumericValues);
-      matchNew = elem.match(/new/);
+    listsArr.forEach((elem) => {
+      const match = elem.match(regNumericValues);
+      const matchNew = elem.match(/new/);
 
       // if attribute value matches regNumericValues
       if (match) {
         // round it to the fixed precision
-        (num = +(+match[1]).toFixed(params.floatPrecision)),
+        (num = Number(Number(match[1]).toFixed(params.floatPrecision))),
           (units = match[3] || '');
 
         // convert absolute values to pixels
         if (params.convertToPx && units && units in absoluteLengths) {
-          var pxNum = +(absoluteLengths[units] * match[1]).toFixed(
-            params.floatPrecision
+          const pxNum = Number(
+            (absoluteLengths[units] * match[1]).toFixed(params.floatPrecision)
           );
 
           if (String(pxNum).length < match[0].length)
@@ -128,7 +125,6 @@ exports.fn = function (item, params) {
       }
     });
 
-    roundedList = roundedListArr.join(' ');
-    $prop.value = roundedList;
+    $prop.value = roundedListArr.join(' ');
   }
 };

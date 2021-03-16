@@ -6,7 +6,7 @@ exports.active = true;
 
 exports.description = 'removes empty container elements';
 
-var container = require('./_collections').elemsGroups.container;
+const { container } = require('./_collections').elemsGroups;
 
 /**
  * Remove empty containers.

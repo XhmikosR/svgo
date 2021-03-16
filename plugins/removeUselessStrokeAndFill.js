@@ -13,10 +13,10 @@ exports.params = {
   hasStyleOrScript: false,
 };
 
-var shape = require('./_collections').elemsGroups.shape,
-  regStrokeProps = /^stroke/,
-  regFillProps = /^fill-/,
-  styleOrScript = ['style', 'script'];
+const { shape } = require('./_collections').elemsGroups;
+const regStrokeProps = /^stroke/;
+const regFillProps = /^fill-/;
+const styleOrScript = ['style', 'script'];
 
 /**
  * Remove useless stroke and fill attrs.
@@ -37,42 +37,39 @@ exports.fn = function (item, params) {
     item.isElem(shape) &&
     !item.computedAttr('id')
   ) {
-    var stroke = params.stroke && item.computedAttr('stroke'),
-      fill = params.fill && !item.computedAttr('fill', 'none');
+    const stroke = params.stroke && item.computedAttr('stroke');
+    const fill = params.fill && !item.computedAttr('fill', 'none');
 
     // remove stroke*
     if (
       params.stroke &&
       (!stroke ||
-        stroke == 'none' ||
+        stroke === 'none' ||
         item.computedAttr('stroke-opacity', '0') ||
-        item.computedAttr('stroke-width', '0'))
-    ) {
+        item.computedAttr('stroke-width', '0')) &&
       // stroke-width may affect the size of marker-end
-      if (
-        item.computedAttr('stroke-width', '0') === true ||
-        item.computedAttr('marker-end') == null
-      ) {
-        var parentStroke = item.parentNode.computedAttr('stroke'),
-          declineStroke = parentStroke && parentStroke != 'none';
+      (item.computedAttr('stroke-width', '0') === true ||
+        item.computedAttr('marker-end') == null)
+    ) {
+      const parentStroke = item.parentNode.computedAttr('stroke');
+      const declineStroke = parentStroke && parentStroke !== 'none';
 
-        item.eachAttr(function (attr) {
-          if (regStrokeProps.test(attr.name)) {
-            item.removeAttr(attr.name);
-          }
+      item.eachAttr((attr) => {
+        if (regStrokeProps.test(attr.name)) {
+          item.removeAttr(attr.name);
+        }
+      });
+
+      if (declineStroke)
+        item.addAttr({
+          name: 'stroke',
+          value: 'none',
         });
-
-        if (declineStroke)
-          item.addAttr({
-            name: 'stroke',
-            value: 'none',
-          });
-      }
     }
 
     // remove fill*
     if (params.fill && (!fill || item.computedAttr('fill-opacity', '0'))) {
-      item.eachAttr(function (attr) {
+      item.eachAttr((attr) => {
         if (regFillProps.test(attr.name)) {
           item.removeAttr(attr.name);
         }
@@ -91,8 +88,8 @@ exports.fn = function (item, params) {
     if (
       params.removeNone &&
       (!stroke ||
-        (item.hasAttr('stroke') && item.attr('stroke').value == 'none')) &&
-      (!fill || (item.hasAttr('fill') && item.attr('fill').value == 'none'))
+        (item.hasAttr('stroke') && item.attr('stroke').value === 'none')) &&
+      (!fill || (item.hasAttr('fill') && item.attr('fill').value === 'none'))
     ) {
       return false;
     }

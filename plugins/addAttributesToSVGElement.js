@@ -6,7 +6,7 @@ exports.active = false;
 
 exports.description = 'adds attributes to an outer <svg> element';
 
-var ENOCLS = `Error in plugin "addAttributesToSVGElement": absent parameters.
+const ENOCLS = `Error in plugin "addAttributesToSVGElement": absent parameters.
 It should have a list of "attributes" or one "attribute".
 Config example:
 
@@ -56,11 +56,11 @@ exports.fn = function (data, params) {
     return data;
   }
 
-  var attributes = params.attributes || [params.attribute],
-    svg = data.children[0];
+  const attributes = params.attributes || [params.attribute];
+  const svg = data.children[0];
 
   if (svg.isElem('svg')) {
-    attributes.forEach(function (attribute) {
+    attributes.forEach((attribute) => {
       if (typeof attribute === 'string') {
         if (!svg.hasAttr(attribute)) {
           svg.addAttr({
@@ -68,7 +68,7 @@ exports.fn = function (data, params) {
           });
         }
       } else if (typeof attribute === 'object') {
-        Object.keys(attribute).forEach(function (key) {
+        Object.keys(attribute).forEach((key) => {
           if (!svg.hasAttr(key)) {
             svg.addAttr({
               name: key,
