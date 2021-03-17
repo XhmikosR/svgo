@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 const fs = require('fs');
@@ -69,7 +71,7 @@ const optimizeSvgFiles = (svgFiles) => {
     }
   }
   if (failed !== 0) {
-    throw Error(`Failed to optimize ${failed} cases`);
+    throw new Error(`Failed to optimize ${failed} cases`);
   }
   return optimizedFiles;
 };

@@ -17,66 +17,66 @@ exports.params = {
   force: false,
 };
 
-var referencesProps = new Set(require('./_collections').referencesProps),
-  regReferencesUrl = /\burl\(("|')?#(.+?)\1\)/,
-  regReferencesHref = /^#(.+?)$/,
-  regReferencesBegin = /(\w+)\./,
-  styleOrScript = ['style', 'script'],
-  generateIDchars = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i',
-    'j',
-    'k',
-    'l',
-    'm',
-    'n',
-    'o',
-    'p',
-    'q',
-    'r',
-    's',
-    't',
-    'u',
-    'v',
-    'w',
-    'x',
-    'y',
-    'z',
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-  ],
-  maxIDindex = generateIDchars.length - 1;
+const referencesProps = new Set(require('./_collections').referencesProps);
+const regReferencesUrl = /\burl\(("|')?#(.+?)\1\)/;
+const regReferencesHref = /^#(.+?)$/;
+const regReferencesBegin = /(\w+)\./;
+const styleOrScript = ['style', 'script'];
+const generateIDchars = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+];
+const maxIDindex = generateIDchars.length - 1;
 
 /**
  * Remove unused and minify used IDs
@@ -88,27 +88,27 @@ var referencesProps = new Set(require('./_collections').referencesProps),
  * @author Kir Belevich
  */
 exports.fn = function (data, params) {
-  var currentID,
-    currentIDstring,
-    IDs = new Map(),
-    referencesIDs = new Map(),
-    hasStyleOrScript = false,
-    preserveIDs = new Set(
-      Array.isArray(params.preserve)
-        ? params.preserve
-        : params.preserve
-        ? [params.preserve]
-        : []
-    ),
-    preserveIDPrefixes = new Set(
-      Array.isArray(params.preservePrefixes)
-        ? params.preservePrefixes
-        : params.preservePrefixes
-        ? [params.preservePrefixes]
-        : []
-    ),
-    idValuePrefix = '#',
-    idValuePostfix = '.';
+  let currentID;
+  let currentIDstring;
+  const IDs = new Map();
+  const referencesIDs = new Map();
+  let hasStyleOrScript = false;
+  const preserveIDs = new Set(
+    Array.isArray(params.preserve)
+      ? params.preserve
+      : (params.preserve
+      ? [params.preserve]
+      : [])
+  );
+  const preserveIDPrefixes = new Set(
+    Array.isArray(params.preservePrefixes)
+      ? params.preservePrefixes
+      : (params.preservePrefixes
+      ? [params.preservePrefixes]
+      : [])
+  );
+  const idValuePrefix = '#';
+  const idValuePostfix = '.';
 
   /**
    * Bananas!
@@ -117,7 +117,7 @@ exports.fn = function (data, params) {
    * @return {Array} output items
    */
   function monkeys(items) {
-    for (var i = 0; i < items.children.length && !hasStyleOrScript; i++) {
+    for (let i = 0; i < items.children.length && !hasStyleOrScript; i++) {
       var item = items.children[i];
 
       // quit if <style> or <script> present ('force' param prevents quitting)
@@ -129,9 +129,9 @@ exports.fn = function (data, params) {
 
         // Don't remove IDs if the whole SVG consists only of defs.
         if (item.isElem('svg')) {
-          var hasDefsOnly = true;
+          let hasDefsOnly = true;
 
-          for (var j = 0; j < item.children.length; j++) {
+          for (let j = 0; j < item.children.length; j++) {
             if (!item.children[j].isElem('defs')) {
               hasDefsOnly = false;
               break;
@@ -144,8 +144,9 @@ exports.fn = function (data, params) {
       }
       // …and don't remove any ID if yes
       if (item.type === 'element') {
-        item.eachAttr(function (attr) {
-          var key, match;
+        item.eachAttr((attr) => {
+          let key;
+          let match;
 
           // save IDs
           if (attr.name === 'id') {
@@ -173,7 +174,7 @@ exports.fn = function (data, params) {
             key = match[1]; // href reference
           }
           if (key) {
-            var ref = referencesIDs.get(key) || [];
+            const ref = referencesIDs.get(key) || [];
             ref.push(attr);
             referencesIDs.set(key, ref);
           }
@@ -196,8 +197,8 @@ exports.fn = function (data, params) {
   const idPreserved = (id) =>
     preserveIDs.has(id) || idMatchesPrefix(preserveIDPrefixes, id);
 
-  for (var ref of referencesIDs) {
-    var key = ref[0];
+  for (const ref of referencesIDs) {
+    const key = ref[0];
 
     if (IDs.has(key)) {
       // replace referenced IDs with the minified ones
@@ -211,7 +212,7 @@ exports.fn = function (data, params) {
 
         IDs.get(key).attr('id').value = currentIDstring;
 
-        for (var attr of ref[1]) {
+        for (const attr of ref[1]) {
           attr.value = attr.value.includes(idValuePrefix)
             ? attr.value.replace(
                 idValuePrefix + key,
@@ -229,7 +230,7 @@ exports.fn = function (data, params) {
   }
   // remove non-referenced IDs attributes from elements
   if (params.remove) {
-    for (var keyElem of IDs) {
+    for (const keyElem of IDs) {
       if (!idPreserved(keyElem[0])) {
         keyElem[1].removeAttr('id');
       }
@@ -248,7 +249,8 @@ exports.fn = function (data, params) {
 function idMatchesPrefix(prefixArray, currentID) {
   if (!currentID) return false;
 
-  for (var prefix of prefixArray) if (currentID.startsWith(prefix)) return true;
+  for (const prefix of prefixArray)
+    if (currentID.startsWith(prefix)) return true;
   return false;
 }
 
@@ -263,7 +265,7 @@ function generateID(currentID) {
 
   currentID[currentID.length - 1]++;
 
-  for (var i = currentID.length - 1; i > 0; i--) {
+  for (let i = currentID.length - 1; i > 0; i--) {
     if (currentID[i] > maxIDindex) {
       currentID[i] = 0;
 
@@ -286,6 +288,6 @@ function generateID(currentID) {
  * @return {String} output ID string
  */
 function getIDstring(arr, params) {
-  var str = params.prefix;
+  const str = params.prefix;
   return str + arr.map((i) => generateIDchars[i]).join('');
 }

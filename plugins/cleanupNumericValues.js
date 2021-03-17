@@ -14,16 +14,16 @@ exports.params = {
   convertToPx: true,
 };
 
-var regNumericValues = /^([-+]?\d*\.?\d+([eE][-+]?\d+)?)(px|pt|pc|mm|cm|m|in|ft|em|ex|%)?$/,
-  removeLeadingZero = require('../lib/svgo/tools').removeLeadingZero,
-  absoluteLengths = {
-    // relative to px
-    cm: 96 / 2.54,
-    mm: 96 / 25.4,
-    in: 96,
-    pt: 4 / 3,
-    pc: 16,
-  };
+const regNumericValues = /^([-+]?\d*\.?\d+([eE][-+]?\d+)?)(px|pt|pc|mm|cm|m|in|ft|em|ex|%)?$/;
+const { removeLeadingZero } = require('../lib/svgo/tools');
+const absoluteLengths = {
+  // relative to px
+  cm: 96 / 2.54,
+  mm: 96 / 25.4,
+  in: 96,
+  pt: 4 / 3,
+  pc: 16,
+};
 
 /**
  * Round numeric values to the fixed precision,
@@ -37,35 +37,35 @@ var regNumericValues = /^([-+]?\d*\.?\d+([eE][-+]?\d+)?)(px|pt|pc|mm|cm|m|in|ft|
  */
 exports.fn = function (item, params) {
   if (item.type === 'element') {
-    var floatPrecision = params.floatPrecision;
+    const { floatPrecision } = params;
 
     if (item.hasAttr('viewBox')) {
-      var nums = item.attr('viewBox').value.split(/\s,?\s*|,\s*/g);
+      const nums = item.attr('viewBox').value.split(/\s,?\s*|,\s*/g);
       item.attr('viewBox').value = nums
-        .map(function (value) {
-          var num = +value;
+        .map((value) => {
+          const num = +value;
           return isNaN(num) ? value : +num.toFixed(floatPrecision);
         })
         .join(' ');
     }
 
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       // The `version` attribute is a text string and cannot be rounded
       if (attr.name === 'version') {
         return;
       }
 
-      var match = attr.value.match(regNumericValues);
+      const match = attr.value.match(regNumericValues);
 
       // if attribute value matches regNumericValues
       if (match) {
         // round it to the fixed precision
-        var num = +(+match[1]).toFixed(floatPrecision),
-          units = match[3] || '';
+        let num = +(+match[1]).toFixed(floatPrecision);
+        let units = match[3] || '';
 
         // convert absolute values to pixels
         if (params.convertToPx && units && units in absoluteLengths) {
-          var pxNum = +(absoluteLengths[units] * match[1]).toFixed(
+          const pxNum = +(absoluteLengths[units] * match[1]).toFixed(
             floatPrecision
           );
 

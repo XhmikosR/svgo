@@ -10,7 +10,7 @@ export default {
     format: 'esm',
   },
   onwarn(warning) {
-    throw Error(warning.toString());
+    throw new Error(warning.toString());
   },
   plugins: [
     {

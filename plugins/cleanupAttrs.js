@@ -13,9 +13,9 @@ exports.params = {
   spaces: true,
 };
 
-var regNewlinesNeedSpace = /(\S)\r?\n(\S)/g,
-  regNewlines = /\r?\n/g,
-  regSpaces = /\s{2,}/g;
+const regNewlinesNeedSpace = /(\S)\r?\n(\S)/g;
+const regNewlines = /\r?\n/g;
+const regSpaces = /\s{2,}/g;
 
 /**
  * Cleanup attributes values from newlines, trailing and repeating spaces.
@@ -28,12 +28,12 @@ var regNewlinesNeedSpace = /(\S)\r?\n(\S)/g,
  */
 exports.fn = function (item, params) {
   if (item.type === 'element') {
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       if (params.newlines) {
         // new line which requires a space instead of themselve
         attr.value = attr.value.replace(
           regNewlinesNeedSpace,
-          function (match, p1, p2) {
+          (match, p1, p2) => {
             return p1 + ' ' + p2;
           }
         );

@@ -6,9 +6,9 @@ exports.active = true;
 
 exports.description = 'collapses useless groups';
 
-var collections = require('./_collections'),
-  attrsInheritable = collections.inheritableAttrs,
-  animationElems = collections.elemsGroups.animation;
+const collections = require('./_collections');
+const attrsInheritable = collections.inheritableAttrs;
+const animationElems = collections.elemsGroups.animation;
 
 function hasAnimatedAttr(item) {
   return (
@@ -49,12 +49,12 @@ exports.fn = function (item) {
     !item.isElem('switch') &&
     item.children.length !== 0
   ) {
-    item.children.forEach(function (g, i) {
+    item.children.forEach((g, i) => {
       // non-empty groups
       if (g.isElem('g') && g.children.length !== 0) {
         // move group attibutes to the single child element
         if (g.hasAttr() && g.children.length === 1) {
-          var inner = g.children[0];
+          const inner = g.children[0];
 
           if (
             inner.type === 'element' &&
@@ -66,7 +66,7 @@ exports.fn = function (item) {
                 !g.hasAttr('transform') &&
                 !inner.hasAttr('transform')))
           ) {
-            g.eachAttr(function (attr) {
+            g.eachAttr((attr) => {
               if (g.children.some(hasAnimatedAttr, attr.name)) return;
 
               if (!inner.hasAttr(attr.name)) {
@@ -77,7 +77,7 @@ exports.fn = function (item) {
               } else if (inner.hasAttr(attr.name, 'inherit')) {
                 inner.attr(attr.name).value = attr.value;
               } else if (
-                attrsInheritable.indexOf(attr.name) < 0 &&
+                !attrsInheritable.includes(attr.name) &&
                 !inner.hasAttr(attr.name, attr.value)
               ) {
                 return;
@@ -91,7 +91,7 @@ exports.fn = function (item) {
         // collapse groups without attributes
         if (
           !g.hasAttr() &&
-          !g.children.some(function (item) {
+          !g.children.some((item) => {
             return item.isElem(animationElems);
           })
         ) {

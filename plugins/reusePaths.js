@@ -1,6 +1,6 @@
 'use strict';
 
-var JSAPI = require('../lib/svgo/jsAPI');
+const JSAPI = require('../lib/svgo/jsAPI');
 
 exports.type = 'full';
 
@@ -61,7 +61,7 @@ exports.fn = function (data) {
       // Remove class and style before copying to avoid circular refs in
       // JSON.stringify. This is fine because we don't actually want class or
       // style information to be copied.
-      const style = def.style;
+      const { style } = def;
       const defClass = def.class;
       delete def.style;
       delete def.class;
@@ -95,7 +95,7 @@ function convertToUse(item, href) {
 /** */
 function traverse(parent, callback) {
   if (parent.type === 'root' || parent.type === 'element') {
-    for (let child of parent.children) {
+    for (const child of parent.children) {
       callback(child);
       traverse(child, callback);
     }

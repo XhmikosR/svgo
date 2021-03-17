@@ -83,7 +83,7 @@ exports.elemsGroups = {
   ],
 };
 
-exports.textElems = exports.elemsGroups.textContent.concat('title');
+exports.textElems = [...exports.elemsGroups.textContent, 'title'];
 
 exports.pathElems = ['path', 'glyph', 'missing-glyph'];
 

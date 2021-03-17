@@ -28,7 +28,7 @@ function runProgram(args) {
   return program.parseAsync([0, 1, ...args]);
 }
 
-describe('coa', function () {
+describe('coa', () => {
   let output;
 
   beforeEach(async () => {
@@ -181,7 +181,7 @@ describe('coa', function () {
       tempFolder,
       '--quiet',
     ]);
-    let optimizedWeight = calcFolderSvgWeight(svgFolderPath);
+    const optimizedWeight = calcFolderSvgWeight(svgFolderPath);
     expect(optimizedWeight).lte(initWeight);
   });
 

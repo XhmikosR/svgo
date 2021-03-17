@@ -79,7 +79,7 @@ exports.fn = function (item, params) {
         computedStyle['stroke-linecap'].value !== 'butt');
     const maybeHasStrokeAndLinecap = maybeHasStroke && maybeHasLinecap;
 
-    var data = path2js(item);
+    let data = path2js(item);
 
     // TODO: get rid of functions returns
     if (data.length) {
@@ -111,8 +111,8 @@ exports.fn = function (item, params) {
  * @return {Array} output path data
  */
 const convertToRelative = (pathData) => {
-  let start = [0, 0];
-  let cursor = [0, 0];
+  const start = [0, 0];
+  const cursor = [0, 0];
   let prevCoords = [0, 0];
 
   for (let i = 0; i < pathData.length; i += 1) {
@@ -283,26 +283,26 @@ const convertToRelative = (pathData) => {
  * @return {Array} output path data
  */
 function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
-  var stringify = data2Path.bind(null, params),
-    relSubpoint = [0, 0],
-    pathBase = [0, 0],
-    prev = {};
+  const stringify = data2Path.bind(null, params);
+  const relSubpoint = [0, 0];
+  const pathBase = [0, 0];
+  let prev = {};
 
-  path = path.filter(function (item, index, path) {
-    var instruction = item.instruction,
-      data = item.data,
-      next = path[index + 1];
+  path = path.filter((item, index, path) => {
+    let { instruction } = item;
+    let { data } = item;
+    let next = path[index + 1];
 
     if (data) {
-      var sdata = data,
-        circle;
+      let sdata = data;
+      let circle;
 
       if (instruction === 's') {
         sdata = [0, 0].concat(data);
 
-        if ('cs'.indexOf(prev.instruction) > -1) {
-          var pdata = prev.data,
-            n = pdata.length;
+        if ('cs'.includes(prev.instruction)) {
+          const pdata = prev.data;
+          const n = pdata.length;
 
           // (-x, -y) of the prev tangent point relative to the current point
           sdata[0] = pdata[n - 2] - pdata[n - 4];
@@ -317,26 +317,26 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
         isConvex(sdata) &&
         (circle = findCircle(sdata))
       ) {
-        var r = roundData([circle.radius])[0],
-          angle = findArcAngle(sdata, circle),
-          sweep = sdata[5] * sdata[0] - sdata[4] * sdata[1] > 0 ? 1 : 0,
-          arc = {
-            instruction: 'a',
-            data: [r, r, 0, 0, sweep, sdata[4], sdata[5]],
-            coords: item.coords.slice(),
-            base: item.base,
-          },
-          output = [arc],
-          // relative coordinates to adjust the found circle
-          relCenter = [
-            circle.center[0] - sdata[4],
-            circle.center[1] - sdata[5],
-          ],
-          relCircle = { center: relCenter, radius: circle.radius },
-          arcCurves = [item],
-          hasPrev = 0,
-          suffix = '',
-          nextLonghand;
+        const r = roundData([circle.radius])[0];
+        let angle = findArcAngle(sdata, circle);
+        const sweep = sdata[5] * sdata[0] - sdata[4] * sdata[1] > 0 ? 1 : 0;
+        let arc = {
+          instruction: 'a',
+          data: [r, r, 0, 0, sweep, sdata[4], sdata[5]],
+          coords: item.coords.slice(),
+          base: item.base,
+        };
+        const output = [arc];
+        // relative coordinates to adjust the found circle
+        const relCenter = [
+          circle.center[0] - sdata[4],
+          circle.center[1] - sdata[5],
+        ];
+        const relCircle = { center: relCenter, radius: circle.radius };
+        const arcCurves = [item];
+        let hasPrev = 0;
+        let suffix = '';
+        let nextLonghand;
 
         if (
           (prev.instruction == 'c' &&
@@ -350,8 +350,8 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
           arc.base = prev.base;
           arc.data[5] = arc.coords[0] - arc.base[0];
           arc.data[6] = arc.coords[1] - arc.base[1];
-          var prevData = prev.instruction == 'a' ? prev.sdata : prev.data;
-          var prevAngle = findArcAngle(prevData, {
+          const prevData = prev.instruction == 'a' ? prev.sdata : prev.data;
+          const prevAngle = findArcAngle(prevData, {
             center: [
               prevData[4] + circle.center[0],
               prevData[5] + circle.center[1],
@@ -369,7 +369,7 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
           (next = path[++j]) && ~'cs'.indexOf(next.instruction);
 
         ) {
-          var nextData = next.data;
+          let nextData = next.data;
           if (next.instruction == 's') {
             nextLonghand = makeLonghand(
               { instruction: 's', data: next.data.slice() },
@@ -425,7 +425,7 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
             makeLonghand(path[j], path[j - 1].data);
           }
           if (hasPrev) {
-            var prevArc = output.shift();
+            const prevArc = output.shift();
             roundData(prevArc.data);
             relSubpoint[0] += prevArc.data[5] - prev.data[prev.data.length - 2];
             relSubpoint[1] += prevArc.data[6] - prev.data[prev.data.length - 1];
@@ -454,8 +454,8 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
       // to get closer to absolute coordinates. Sum of rounded value remains same:
       // l .25 3 .25 2 .25 3 .25 2 -> l .3 3 .2 2 .3 3 .2 2
       if (precision !== false) {
-        if ('mltqsc'.indexOf(instruction) > -1) {
-          for (var i = data.length; i--; ) {
+        if ('mltqsc'.includes(instruction)) {
+          for (let i = data.length; i--; ) {
             data[i] += item.base[i % 2] - relSubpoint[i % 2];
           }
         } else if (instruction == 'h') {
@@ -526,7 +526,7 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
       if (
         params.collapseRepeated &&
         hasMarkerMid === false &&
-        'mhv'.indexOf(instruction) > -1 &&
+        'mhv'.includes(instruction) &&
         prev.instruction &&
         instruction == prev.instruction.toLowerCase() &&
         ((instruction != 'h' && instruction != 'v') ||
@@ -567,7 +567,7 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
 
           // [^cs] + c → [^cs] + s
           else if (
-            'cs'.indexOf(prev.instruction) === -1 &&
+            !'cs'.includes(prev.instruction) &&
             data[0] === 0 &&
             data[1] === 0
           ) {
@@ -604,8 +604,8 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
       if (params.removeUseless && !maybeHasStrokeAndLinecap) {
         // l 0,0 / h 0 / v 0 / q 0,0 0,0 / t 0,0 / c 0,0 0,0 0,0 / s 0,0 0,0
         if (
-          'lhvqtcs'.indexOf(instruction) > -1 &&
-          data.every(function (i) {
+          'lhvqtcs'.includes(instruction) &&
+          data.every((i) => {
             return i === 0;
           })
         ) {
@@ -645,21 +645,21 @@ function filters(path, params, { maybeHasStrokeAndLinecap, hasMarkerMid }) {
  * @return {Boolean} output
  */
 function convertToMixed(path, params) {
-  var prev = path[0];
+  let prev = path[0];
 
-  path = path.filter(function (item, index) {
+  path = path.filter((item, index) => {
     if (index == 0) return true;
     if (!item.data) {
       prev = item;
       return true;
     }
 
-    var instruction = item.instruction,
-      data = item.data,
-      adata = data && data.slice(0);
+    const { instruction } = item;
+    const { data } = item;
+    const adata = data && data.slice(0);
 
-    if ('mltqsc'.indexOf(instruction) > -1) {
-      for (var i = adata.length; i--; ) {
+    if ('mltqsc'.includes(instruction)) {
+      for (let i = adata.length; i--; ) {
         adata[i] += item.base[i % 2];
       }
     } else if (instruction == 'h') {
@@ -673,8 +673,8 @@ function convertToMixed(path, params) {
 
     roundData(adata);
 
-    var absoluteDataStr = cleanupOutData(adata, params),
-      relativeDataStr = cleanupOutData(data, params);
+    const absoluteDataStr = cleanupOutData(adata, params);
+    const relativeDataStr = cleanupOutData(data, params);
 
     // Convert to absolute coordinates if it's shorter or forceAbsolutePath is true.
     // v-20 -> V0
@@ -712,7 +712,7 @@ function convertToMixed(path, params) {
  * @return {Boolean} output
  */
 function isConvex(data) {
-  var center = getIntersection([
+  const center = getIntersection([
     0,
     0,
     data[2],
@@ -740,18 +740,18 @@ function isConvex(data) {
  */
 function getIntersection(coords) {
   // Prev line equation parameters.
-  var a1 = coords[1] - coords[3], // y1 - y2
-    b1 = coords[2] - coords[0], // x2 - x1
-    c1 = coords[0] * coords[3] - coords[2] * coords[1], // x1 * y2 - x2 * y1
-    // Next line equation parameters
-    a2 = coords[5] - coords[7], // y1 - y2
-    b2 = coords[6] - coords[4], // x2 - x1
-    c2 = coords[4] * coords[7] - coords[5] * coords[6], // x1 * y2 - x2 * y1
-    denom = a1 * b2 - a2 * b1;
+  const a1 = coords[1] - coords[3]; // y1 - y2
+  const b1 = coords[2] - coords[0]; // x2 - x1
+  const c1 = coords[0] * coords[3] - coords[2] * coords[1]; // x1 * y2 - x2 * y1
+  // Next line equation parameters
+  const a2 = coords[5] - coords[7]; // y1 - y2
+  const b2 = coords[6] - coords[4]; // x2 - x1
+  const c2 = coords[4] * coords[7] - coords[5] * coords[6]; // x1 * y2 - x2 * y1
+  const denom = a1 * b2 - a2 * b1;
 
   if (!denom) return; // parallel lines havn't an intersection
 
-  var cross = [(b1 * c2 - b2 * c1) / denom, (a1 * c2 - a2 * c1) / -denom];
+  const cross = [(b1 * c2 - b2 * c1) / denom, (a1 * c2 - a2 * c1) / -denom];
   if (
     !isNaN(cross[0]) &&
     !isNaN(cross[1]) &&
@@ -772,9 +772,9 @@ function getIntersection(coords) {
  * @return {Array} output data array
  */
 function strongRound(data) {
-  for (var i = data.length; i-- > 0; ) {
+  for (let i = data.length; i-- > 0; ) {
     if (data[i].toFixed(precision) != data[i]) {
-      var rounded = +data[i].toFixed(precision - 1);
+      const rounded = +data[i].toFixed(precision - 1);
       data[i] =
         +Math.abs(rounded - data[i]).toFixed(precision + 1) >= error
           ? +data[i].toFixed(precision)
@@ -791,7 +791,7 @@ function strongRound(data) {
  * @return {Array} output data array
  */
 function round(data) {
-  for (var i = data.length; i-- > 0; ) {
+  for (let i = data.length; i-- > 0; ) {
     data[i] = Math.round(data[i]);
   }
   return data;
@@ -808,10 +808,10 @@ function round(data) {
 
 function isCurveStraightLine(data) {
   // Get line equation a·x + b·y + c = 0 coefficients a, b (c = 0) by start and end points.
-  var i = data.length - 2,
-    a = -data[i + 1], // y1 − y2 (y1 = 0)
-    b = data[i], // x2 − x1 (x1 = 0)
-    d = 1 / (a * a + b * b); // same part for all points
+  let i = data.length - 2;
+  const a = -data[i + 1]; // y1 − y2 (y1 = 0)
+  const b = data[i]; // x2 − x1 (x1 = 0)
+  const d = 1 / (a * a + b * b); // same part for all points
 
   if (i <= 1 || !isFinite(d)) return false; // curve that ends at start point isn't the case
 
@@ -870,10 +870,10 @@ function getDistance(point1, point2) {
  */
 
 function getCubicBezierPoint(curve, t) {
-  var sqrT = t * t,
-    cubT = sqrT * t,
-    mt = 1 - t,
-    sqrMt = mt * mt;
+  const sqrT = t * t;
+  const cubT = sqrT * t;
+  const mt = 1 - t;
+  const sqrMt = mt * mt;
 
   return [
     3 * sqrMt * t * curve[0] + 3 * mt * sqrT * curve[2] + cubT * curve[4],
@@ -889,26 +889,29 @@ function getCubicBezierPoint(curve, t) {
  */
 
 function findCircle(curve) {
-  var midPoint = getCubicBezierPoint(curve, 1 / 2),
-    m1 = [midPoint[0] / 2, midPoint[1] / 2],
-    m2 = [(midPoint[0] + curve[4]) / 2, (midPoint[1] + curve[5]) / 2],
-    center = getIntersection([
-      m1[0],
-      m1[1],
-      m1[0] + m1[1],
-      m1[1] - m1[0],
-      m2[0],
-      m2[1],
-      m2[0] + (m2[1] - midPoint[1]),
-      m2[1] - (m2[0] - midPoint[0]),
-    ]),
-    radius = center && getDistance([0, 0], center),
-    tolerance = Math.min(arcThreshold * error, (arcTolerance * radius) / 100);
+  const midPoint = getCubicBezierPoint(curve, 1 / 2);
+  const m1 = [midPoint[0] / 2, midPoint[1] / 2];
+  const m2 = [(midPoint[0] + curve[4]) / 2, (midPoint[1] + curve[5]) / 2];
+  const center = getIntersection([
+    m1[0],
+    m1[1],
+    m1[0] + m1[1],
+    m1[1] - m1[0],
+    m2[0],
+    m2[1],
+    m2[0] + (m2[1] - midPoint[1]),
+    m2[1] - (m2[0] - midPoint[0]),
+  ]);
+  const radius = center && getDistance([0, 0], center);
+  const tolerance = Math.min(
+    arcThreshold * error,
+    (arcTolerance * radius) / 100
+  );
 
   if (
     center &&
     radius < 1e15 &&
-    [1 / 4, 3 / 4].every(function (point) {
+    [1 / 4, 3 / 4].every((point) => {
       return (
         Math.abs(
           getDistance(getCubicBezierPoint(curve, point), center) - radius
@@ -916,7 +919,7 @@ function findCircle(curve) {
       );
     })
   )
-    return { center: center, radius: radius };
+    return { center, radius };
 }
 
 /**
@@ -928,12 +931,12 @@ function findCircle(curve) {
  */
 
 function isArc(curve, circle) {
-  var tolerance = Math.min(
+  const tolerance = Math.min(
     arcThreshold * error,
     (arcTolerance * circle.radius) / 100
   );
 
-  return [0, 1 / 4, 1 / 2, 3 / 4, 1].every(function (point) {
+  return [0, 1 / 4, 1 / 2, 3 / 4, 1].every((point) => {
     return (
       Math.abs(
         getDistance(getCubicBezierPoint(curve, point), circle.center) -
@@ -967,10 +970,10 @@ function isArcPrev(curve, circle) {
  */
 
 function findArcAngle(curve, relCircle) {
-  var x1 = -relCircle.center[0],
-    y1 = -relCircle.center[1],
-    x2 = curve[4] - relCircle.center[0],
-    y2 = curve[5] - relCircle.center[1];
+  const x1 = -relCircle.center[0];
+  const y1 = -relCircle.center[1];
+  const x2 = curve[4] - relCircle.center[0];
+  const y2 = curve[5] - relCircle.center[1];
 
   return Math.acos(
     (x1 * x2 + y1 * y2) / Math.sqrt((x1 * x1 + y1 * y1) * (x2 * x2 + y2 * y2))
@@ -986,8 +989,8 @@ function findArcAngle(curve, relCircle) {
  */
 
 function data2Path(params, pathData) {
-  return pathData.reduce(function (pathString, item) {
-    var strData = '';
+  return pathData.reduce((pathString, item) => {
+    let strData = '';
     if (item.data) {
       strData = cleanupOutData(roundData(item.data.slice()), params);
     }

@@ -39,17 +39,17 @@ exports.params = {
  * @author Nikolay Frantsev
  */
 exports.fn = function (item, params) {
-  var attrs = [],
-    sorted = {},
-    orderlen = params.order.length + 1,
-    xmlnsOrder = params.xmlnsOrder || 'front';
+  const attrs = [];
+  const sorted = {};
+  const orderlen = params.order.length + 1;
+  const xmlnsOrder = params.xmlnsOrder || 'front';
 
   if (item.type === 'element') {
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       attrs.push(attr);
     });
 
-    attrs.sort(function (a, b) {
+    attrs.sort((a, b) => {
       const { prefix: prefixA } = parseName(a.name);
       const { prefix: prefixB } = parseName(b.name);
       if (prefixA != prefixB) {
@@ -61,10 +61,10 @@ exports.fn = function (item, params) {
         return prefixA < prefixB ? -1 : 1;
       }
 
-      var aindex = orderlen;
-      var bindex = orderlen;
+      let aindex = orderlen;
+      let bindex = orderlen;
 
-      for (var i = 0; i < params.order.length; i++) {
+      for (let i = 0; i < params.order.length; i++) {
         if (a.name == params.order[i]) {
           aindex = i;
         } else if (a.name.indexOf(params.order[i] + '-') === 0) {
@@ -83,7 +83,7 @@ exports.fn = function (item, params) {
       return a.name < b.name ? -1 : 1;
     });
 
-    attrs.forEach(function (attr) {
+    attrs.forEach((attr) => {
       sorted[attr.name] = attr;
     });
 

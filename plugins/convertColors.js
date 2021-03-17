@@ -14,14 +14,14 @@ exports.params = {
   shortname: true,
 };
 
-var collections = require('./_collections'),
-  rNumber = '([+-]?(?:\\d*\\.\\d+|\\d+\\.?)%?)',
-  rComma = '\\s*,\\s*',
-  regRGB = new RegExp(
-    '^rgb\\(\\s*' + rNumber + rComma + rNumber + rComma + rNumber + '\\s*\\)$'
-  ),
-  regHEX = /^#(([a-fA-F0-9])\2){3}$/,
-  none = /\bnone\b/i;
+const collections = require('./_collections');
+const rNumber = '([+-]?(?:\\d*\\.\\d+|\\d+\\.?)%?)';
+const rComma = '\\s*,\\s*';
+const regRGB = new RegExp(
+  '^rgb\\(\\s*' + rNumber + rComma + rNumber + rComma + rNumber + '\\s*\\)$'
+);
+const regHEX = /^#(([a-fA-F0-9])\2){3}$/;
+const none = /\bnone\b/i;
 
 /**
  * Convert different colors formats in element attributes to hex.
@@ -51,10 +51,10 @@ var collections = require('./_collections'),
  */
 exports.fn = function (item, params) {
   if (item.type === 'element') {
-    item.eachAttr(function (attr) {
-      if (collections.colorsProps.indexOf(attr.name) > -1) {
-        var val = attr.value,
-          match;
+    item.eachAttr((attr) => {
+      if (collections.colorsProps.includes(attr.name)) {
+        let val = attr.value;
+        let match;
 
         // Convert colors to currentColor
         if (params.currentColor) {
@@ -63,7 +63,7 @@ exports.fn = function (item, params) {
           } else if (params.currentColor.exec) {
             match = params.currentColor.exec(val);
           } else {
-            match = !val.match(none);
+            match = !none.test(val);
           }
           if (match) {
             val = 'currentColor';
@@ -77,8 +77,8 @@ exports.fn = function (item, params) {
 
         // Convert rgb() to long hex
         if (params.rgb2hex && (match = val.match(regRGB))) {
-          match = match.slice(1, 4).map(function (m) {
-            if (m.indexOf('%') > -1) m = Math.round(parseFloat(m) * 2.55);
+          match = match.slice(1, 4).map((m) => {
+            if (m.includes('%')) m = Math.round(Number.parseFloat(m) * 2.55);
 
             return Math.max(0, Math.min(m, 255));
           });
@@ -93,7 +93,7 @@ exports.fn = function (item, params) {
 
         // Convert hex to short name
         if (params.shortname) {
-          var lowerVal = val.toLowerCase();
+          const lowerVal = val.toLowerCase();
           if (lowerVal in collections.colorsShortNames) {
             val = collections.colorsShortNames[lowerVal];
           }

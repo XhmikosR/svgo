@@ -3,16 +3,16 @@
 const { expect } = require('chai');
 const FS = require('fs');
 const PATH = require('path');
-const EOL = require('os').EOL;
+const { EOL } = require('os');
 const regEOL = new RegExp(EOL, 'g');
 const regFilename = /^(.*)\.(\d+)\.svg$/;
 const { optimize } = require('../../lib/svgo.js');
 
-describe('plugins tests', function () {
-  FS.readdirSync(__dirname).forEach(function (file) {
-    var match = file.match(regFilename),
-      index,
-      name;
+describe('plugins tests', () => {
+  FS.readdirSync(__dirname).forEach((file) => {
+    const match = file.match(regFilename);
+    let index;
+    let name;
 
     if (match) {
       name = match[1];
@@ -20,8 +20,8 @@ describe('plugins tests', function () {
 
       file = PATH.resolve(__dirname, file);
 
-      it(name + '.' + index, function () {
-        return readFile(file).then(function (data) {
+      it(name + '.' + index, () => {
+        return readFile(file).then((data) => {
           // remove description
           const items = normalize(data).split(/\s*===\s*/);
           const test = items.length === 2 ? items[1] : items[0];
@@ -52,8 +52,8 @@ function normalize(file) {
 }
 
 function readFile(file) {
-  return new Promise(function (resolve, reject) {
-    FS.readFile(file, 'utf8', function (err, data) {
+  return new Promise((resolve, reject) => {
+    FS.readFile(file, 'utf8', (err, data) => {
       if (err) return reject(err);
       resolve(data);
     });

@@ -1,6 +1,6 @@
 'use strict';
 
-var DEFAULT_SEPARATOR = ':';
+const DEFAULT_SEPARATOR = ':';
 
 exports.type = 'perItem';
 
@@ -88,19 +88,19 @@ exports.fn = function (item, params) {
   }
 
   if (item.type === 'element') {
-    var elemSeparator =
-      typeof params.elemSeparator == 'string'
+    const elemSeparator =
+      typeof params.elemSeparator === 'string'
         ? params.elemSeparator
         : DEFAULT_SEPARATOR;
-    var preserveCurrentColor =
-      typeof params.preserveCurrentColor == 'boolean'
+    const preserveCurrentColor =
+      typeof params.preserveCurrentColor === 'boolean'
         ? params.preserveCurrentColor
         : false;
 
     // prepare patterns
-    var patterns = params.attrs.map(function (pattern) {
+    const patterns = params.attrs.map((pattern) => {
       // if no element separators (:), assume it's attribute name, and apply to all elements *regardless of value*
-      if (pattern.indexOf(elemSeparator) === -1) {
+      if (!pattern.includes(elemSeparator)) {
         pattern = ['.*', elemSeparator, pattern, elemSeparator, '.*'].join('');
 
         // if only 1 separator, assume it's element and attribute name, and apply regardless of attribute value
@@ -109,7 +109,7 @@ exports.fn = function (item, params) {
       }
 
       // create regexps for element, attribute name, and attribute value
-      return pattern.split(elemSeparator).map(function (value) {
+      return pattern.split(elemSeparator).map((value) => {
         // adjust single * to match anything
         if (value === '*') {
           value = '.*';
@@ -120,26 +120,24 @@ exports.fn = function (item, params) {
     });
 
     // loop patterns
-    patterns.forEach(function (pattern) {
+    patterns.forEach((pattern) => {
       // matches element
       if (pattern[0].test(item.name)) {
         // loop attributes
-        item.eachAttr(function (attr) {
-          var name = attr.name;
-          var value = attr.value;
-          var isFillCurrentColor =
+        item.eachAttr((attr) => {
+          const { name } = attr;
+          const { value } = attr;
+          const isFillCurrentColor =
             preserveCurrentColor && name == 'fill' && value == 'currentColor';
-          var isStrokeCurrentColor =
+          const isStrokeCurrentColor =
             preserveCurrentColor && name == 'stroke' && value == 'currentColor';
 
-          if (!(isFillCurrentColor || isStrokeCurrentColor)) {
-            // matches attribute name
-            if (pattern[1].test(name)) {
-              // matches attribute value
-              if (pattern[2].test(attr.value)) {
-                item.removeAttr(name);
-              }
-            }
+          if (
+            !(isFillCurrentColor || isStrokeCurrentColor) && // matches attribute name
+            pattern[1].test(name) && // matches attribute value
+            pattern[2].test(attr.value)
+          ) {
+            item.removeAttr(name);
           }
         });
       }

@@ -18,7 +18,7 @@ exports.description = 'removes empty attributes';
  */
 exports.fn = function (item) {
   if (item.type === 'element') {
-    item.eachAttr(function (attr) {
+    item.eachAttr((attr) => {
       if (
         attr.value === '' &&
         // empty conditional processing attributes prevents elements from rendering

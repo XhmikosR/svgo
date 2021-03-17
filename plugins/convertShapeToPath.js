@@ -40,10 +40,10 @@ exports.fn = function (item, params) {
     !item.hasAttr('rx') &&
     !item.hasAttr('ry')
   ) {
-    var x = +(item.attr('x') || none).value,
-      y = +(item.attr('y') || none).value,
-      width = +item.attr('width').value,
-      height = +item.attr('height').value;
+    const x = +(item.attr('x') || none).value;
+    const y = +(item.attr('y') || none).value;
+    const width = +item.attr('width').value;
+    const height = +item.attr('height').value;
     // Values like '100%' compute to NaN, thus running after
     // cleanupNumericValues when 'px' units has already been removed.
     // TODO: Calculate sizes from % and non-px units if possible.
@@ -63,10 +63,10 @@ exports.fn = function (item, params) {
   }
 
   if (item.isElem('line')) {
-    var x1 = +(item.attr('x1') || none).value,
-      y1 = +(item.attr('y1') || none).value,
-      x2 = +(item.attr('x2') || none).value,
-      y2 = +(item.attr('y2') || none).value;
+    const x1 = +(item.attr('x1') || none).value;
+    const y1 = +(item.attr('y1') || none).value;
+    const x2 = +(item.attr('x2') || none).value;
+    const y2 = +(item.attr('y2') || none).value;
     if (isNaN(x1 - y1 + x2 - y2)) return;
     const pathData = [
       { command: 'M', args: [x1, y1] },
@@ -83,7 +83,9 @@ exports.fn = function (item, params) {
     (item.isElem('polyline') || item.isElem('polygon')) &&
     item.hasAttr('points')
   ) {
-    var coords = (item.attr('points').value.match(regNumber) || []).map(Number);
+    const coords = (item.attr('points').value.match(regNumber) || []).map(
+      Number
+    );
     if (coords.length < 4) return false;
     const pathData = [];
     for (let i = 0; i < coords.length; i += 2) {
@@ -103,9 +105,9 @@ exports.fn = function (item, params) {
   }
 
   if (item.isElem('circle') && convertArcs) {
-    var cx = +(item.attr('cx') || none).value;
-    var cy = +(item.attr('cy') || none).value;
-    var r = +(item.attr('r') || none).value;
+    const cx = +(item.attr('cx') || none).value;
+    const cy = +(item.attr('cy') || none).value;
+    const r = +(item.attr('r') || none).value;
     if (isNaN(cx - cy + r)) {
       return;
     }
@@ -123,10 +125,10 @@ exports.fn = function (item, params) {
   }
 
   if (item.isElem('ellipse') && convertArcs) {
-    var ecx = +(item.attr('cx') || none).value;
-    var ecy = +(item.attr('cy') || none).value;
-    var rx = +(item.attr('rx') || none).value;
-    var ry = +(item.attr('ry') || none).value;
+    const ecx = +(item.attr('cx') || none).value;
+    const ecy = +(item.attr('cy') || none).value;
+    const rx = +(item.attr('rx') || none).value;
+    const ry = +(item.attr('ry') || none).value;
     if (isNaN(ecx - ecy + rx - ry)) {
       return;
     }

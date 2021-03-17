@@ -2,7 +2,7 @@
 
 const { parsePathData, stringifyPathData } = require('../lib/path.js');
 
-var prevCtrlPoint;
+let prevCtrlPoint;
 
 /**
  * Convert path string to JS representation.
@@ -36,19 +36,19 @@ exports.path2js = function (path) {
  * @param {Array} data input data
  * @return {Array} output data
  */
-var relative2absolute = (exports.relative2absolute = function (data) {
-  var currentPoint = [0, 0],
-    subpathPoint = [0, 0],
-    i;
+const relative2absolute = (exports.relative2absolute = function (data) {
+  const currentPoint = [0, 0];
+  const subpathPoint = [0, 0];
+  let i;
 
-  return data.map(function (item) {
-    var instruction = item.instruction,
-      itemData = item.data && item.data.slice();
+  return data.map((item) => {
+    const { instruction } = item;
+    const itemData = item.data && item.data.slice();
 
     if (instruction == 'M') {
       set(currentPoint, itemData);
       set(subpathPoint, itemData);
-    } else if ('mlcsqt'.indexOf(instruction) > -1) {
+    } else if ('mlcsqt'.includes(instruction)) {
       for (i = 0; i < itemData.length; i++) {
         itemData[i] += currentPoint[i % 2];
       }
@@ -67,7 +67,7 @@ var relative2absolute = (exports.relative2absolute = function (data) {
     } else if (instruction == 'v') {
       itemData[0] += currentPoint[1];
       currentPoint[1] = itemData[0];
-    } else if ('MZLCSQTA'.indexOf(instruction) > -1) {
+    } else if ('MZLCSQTA'.includes(instruction)) {
       set(currentPoint, itemData);
     } else if (instruction == 'H') {
       currentPoint[0] = itemData[0];
@@ -103,15 +103,15 @@ var relative2absolute = (exports.relative2absolute = function (data) {
  * @return {Object}
  */
 exports.computeCubicBoundingBox = function (xa, ya, xb, yb, xc, yc, xd, yd) {
-  var minx = Number.POSITIVE_INFINITY,
-    miny = Number.POSITIVE_INFINITY,
-    maxx = Number.NEGATIVE_INFINITY,
-    maxy = Number.NEGATIVE_INFINITY,
-    ts,
-    t,
-    x,
-    y,
-    i;
+  let minx = Number.POSITIVE_INFINITY;
+  let miny = Number.POSITIVE_INFINITY;
+  let maxx = Number.NEGATIVE_INFINITY;
+  let maxy = Number.NEGATIVE_INFINITY;
+  let ts;
+  let t;
+  let x;
+  let y;
+  let i;
 
   // X
   if (xa < minx) {
@@ -178,16 +178,16 @@ exports.computeCubicBoundingBox = function (xa, ya, xb, yb, xc, yc, xd, yd) {
   }
 
   return {
-    minx: minx,
-    miny: miny,
-    maxx: maxx,
-    maxy: maxy,
+    minx,
+    miny,
+    maxx,
+    maxy,
   };
 };
 
 // compute the value for the cubic bezier function at time=t
 function computeCubicBaseValue(t, a, b, c, d) {
-  var mt = 1 - t;
+  const mt = 1 - t;
 
   return (
     mt * mt * mt * a + 3 * mt * mt * t * b + 3 * mt * t * t * c + t * t * t * d
@@ -196,10 +196,10 @@ function computeCubicBaseValue(t, a, b, c, d) {
 
 // compute the value for the first derivative of the cubic bezier function at time=t
 function computeCubicFirstDerivativeRoots(a, b, c, d) {
-  var result = [-1, -1],
-    tl = -a + 2 * b - c,
-    tr = -Math.sqrt(-a * (c - d) + b * b - b * (c + d) + c * c),
-    dn = -a + 3 * b - 3 * c + d;
+  const result = [-1, -1];
+  const tl = -a + 2 * b - c;
+  const tr = -Math.sqrt(-a * (c - d) + b * b - b * (c + d) + c * c);
+  const dn = -a + 3 * b - 3 * c + d;
 
   if (dn !== 0) {
     result[0] = (tl + tr) / dn;
@@ -224,13 +224,13 @@ function computeCubicFirstDerivativeRoots(a, b, c, d) {
  * @return {Object}
  */
 exports.computeQuadraticBoundingBox = function (xa, ya, xb, yb, xc, yc) {
-  var minx = Number.POSITIVE_INFINITY,
-    miny = Number.POSITIVE_INFINITY,
-    maxx = Number.NEGATIVE_INFINITY,
-    maxy = Number.NEGATIVE_INFINITY,
-    t,
-    x,
-    y;
+  let minx = Number.POSITIVE_INFINITY;
+  let miny = Number.POSITIVE_INFINITY;
+  let maxx = Number.NEGATIVE_INFINITY;
+  let maxy = Number.NEGATIVE_INFINITY;
+  let t;
+  let x;
+  let y;
 
   // X
   if (xa < minx) {
@@ -289,24 +289,24 @@ exports.computeQuadraticBoundingBox = function (xa, ya, xb, yb, xc, yc) {
   }
 
   return {
-    minx: minx,
-    miny: miny,
-    maxx: maxx,
-    maxy: maxy,
+    minx,
+    miny,
+    maxx,
+    maxy,
   };
 };
 
 // compute the value for the quadratic bezier function at time=t
 function computeQuadraticBaseValue(t, a, b, c) {
-  var mt = 1 - t;
+  const mt = 1 - t;
 
   return mt * mt * a + 2 * mt * t * b + t * t * c;
 }
 
 // compute the value for the first derivative of the quadratic bezier function at time=t
 function computeQuadraticFirstDerivativeRoot(a, b, c) {
-  var t = -1,
-    denominator = a - 2 * b + c;
+  let t = -1;
+  const denominator = a - 2 * b + c;
 
   if (denominator !== 0) {
     t = (a - b) / denominator;
@@ -367,8 +367,8 @@ function set(dest, source) {
  */
 exports.intersects = function (path1, path2) {
   // Collect points of every subpath.
-  var points1 = relative2absolute(path1).reduce(gatherPoints, []),
-    points2 = relative2absolute(path2).reduce(gatherPoints, []);
+  const points1 = relative2absolute(path1).reduce(gatherPoints, []);
+  const points2 = relative2absolute(path2).reduce(gatherPoints, []);
 
   // Axis-aligned bounding box check.
   if (
@@ -376,8 +376,8 @@ exports.intersects = function (path1, path2) {
     points2.maxX <= points1.minX ||
     points1.maxY <= points2.minY ||
     points2.maxY <= points1.minY ||
-    points1.every(function (set1) {
-      return points2.every(function (set2) {
+    points1.every((set1) => {
+      return points2.every((set2) => {
         return (
           set1[set1.maxX][0] <= set2[set2.minX][0] ||
           set2[set2.maxX][0] <= set1[set1.minX][0] ||
@@ -390,20 +390,20 @@ exports.intersects = function (path1, path2) {
     return false;
 
   // Get a convex hull from points of each subpath. Has the most complexity O(n·log n).
-  var hullNest1 = points1.map(convexHull),
-    hullNest2 = points2.map(convexHull);
+  const hullNest1 = points1.map(convexHull);
+  const hullNest2 = points2.map(convexHull);
 
   // Check intersection of every subpath of the first path with every subpath of the second.
-  return hullNest1.some(function (hull1) {
+  return hullNest1.some((hull1) => {
     if (hull1.length < 3) return false;
 
-    return hullNest2.some(function (hull2) {
+    return hullNest2.some((hull2) => {
       if (hull2.length < 3) return false;
 
-      var simplex = [getSupport(hull1, hull2, [1, 0])], // create the initial simplex
-        direction = minus(simplex[0]); // set the direction to point towards the origin
+      const simplex = [getSupport(hull1, hull2, [1, 0])]; // create the initial simplex
+      const direction = minus(simplex[0]); // set the direction to point towards the origin
 
-      var iterations = 1e4; // infinite loop protection, 10 000 iterations is more than enough
+      let iterations = 1e4; // infinite loop protection, 10 000 iterations is more than enough
       // eslint-disable-next-line no-constant-condition
       while (true) {
         // eslint-disable-next-line no-constant-condition
@@ -431,16 +431,16 @@ exports.intersects = function (path1, path2) {
   // Thanks to knowledge of min/max x and y coordinates we can choose a quadrant to search in.
   // Since we're working on convex hull, the dot product is increasing until we find the farthest point.
   function supportPoint(polygon, direction) {
-    var index =
-        direction[1] >= 0
-          ? direction[0] < 0
-            ? polygon.maxY
-            : polygon.maxX
-          : direction[0] < 0
-          ? polygon.minX
-          : polygon.minY,
-      max = -Infinity,
-      value;
+    let index =
+      direction[1] >= 0
+        ? (direction[0] < 0
+          ? polygon.maxY
+          : polygon.maxX)
+        : (direction[0] < 0
+        ? polygon.minX
+        : polygon.minY);
+    let max = Number.NEGATIVE_INFINITY;
+    let value;
     while ((value = dot(polygon[index], direction)) > max) {
       max = value;
       index = ++index % polygon.length;
@@ -453,10 +453,10 @@ function processSimplex(simplex, direction) {
   // we only need to handle to 1-simplex and 2-simplex
   if (simplex.length == 2) {
     // 1-simplex
-    let a = simplex[1],
-      b = simplex[0],
-      AO = minus(simplex[1]),
-      AB = sub(b, a);
+    const a = simplex[1];
+    const b = simplex[0];
+    const AO = minus(simplex[1]);
+    const AB = sub(b, a);
     // AO is in the same direction as AB
     if (dot(AO, AB) > 0) {
       // get the vector perpendicular to AB facing O
@@ -468,14 +468,14 @@ function processSimplex(simplex, direction) {
     }
   } else {
     // 2-simplex
-    let a = simplex[2], // [a, b, c] = simplex
-      b = simplex[1],
-      c = simplex[0],
-      AB = sub(b, a),
-      AC = sub(c, a),
-      AO = minus(a),
-      ACB = orth(AB, AC), // the vector perpendicular to AB facing away from C
-      ABC = orth(AC, AB); // the vector perpendicular to AC facing away from B
+    const a = simplex[2]; // [a, b, c] = simplex
+    const b = simplex[1];
+    const c = simplex[0];
+    const AB = sub(b, a);
+    const AC = sub(c, a);
+    const AO = minus(a);
+    const ACB = orth(AB, AC); // the vector perpendicular to AB facing away from C
+    const ABC = orth(AC, AB); // the vector perpendicular to AC facing away from B
 
     if (dot(ACB, AO) > 0) {
       if (dot(AB, AO) > 0) {
@@ -516,16 +516,16 @@ function dot(v1, v2) {
 }
 
 function orth(v, from) {
-  var o = [-v[1], v[0]];
+  const o = [-v[1], v[0]];
   return dot(o, minus(from)) < 0 ? minus(o) : o;
 }
 
 function gatherPoints(points, item, index, path) {
-  var subPath = points.length && points[points.length - 1],
-    prev = index && path[index - 1],
-    basePoint = subPath.length && subPath[subPath.length - 1],
-    data = item.data,
-    ctrlPoint = basePoint;
+  let subPath = points.length && points[points.length - 1];
+  const prev = index && path[index - 1];
+  let basePoint = subPath.length && subPath[subPath.length - 1];
+  const { data } = item;
+  let ctrlPoint = basePoint;
 
   switch (item.instruction) {
     case 'M':
@@ -636,13 +636,13 @@ function gatherPoints(points, item, index, path) {
  * @param points An array of [X, Y] coordinates
  */
 function convexHull(points) {
-  points.sort(function (a, b) {
+  points.sort((a, b) => {
     return a[0] == b[0] ? a[1] - b[1] : a[0] - b[0];
   });
 
-  var lower = [],
-    minY = 0,
-    bottom = 0;
+  const lower = [];
+  let minY = 0;
+  let bottom = 0;
   for (let i = 0; i < points.length; i++) {
     while (
       lower.length >= 2 &&
@@ -657,9 +657,9 @@ function convexHull(points) {
     lower.push(points[i]);
   }
 
-  var upper = [],
-    maxY = points.length - 1,
-    top = 0;
+  const upper = [];
+  let maxY = points.length - 1;
+  let top = 0;
   for (let i = points.length; i--; ) {
     while (
       upper.length >= 2 &&
@@ -678,7 +678,7 @@ function convexHull(points) {
   upper.pop();
   lower.pop();
 
-  var hull = lower.concat(upper);
+  const hull = [...lower, ...upper];
 
   hull.minX = 0; // by sorting
   hull.maxX = lower.length;
@@ -710,42 +710,41 @@ function a2c(
 ) {
   // for more information of where this Math came from visit:
   // https://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
-  var _120 = (Math.PI * 120) / 180,
-    rad = (Math.PI / 180) * (+angle || 0),
-    res = [],
-    rotateX = function (x, y, rad) {
-      return x * Math.cos(rad) - y * Math.sin(rad);
-    },
-    rotateY = function (x, y, rad) {
-      return x * Math.sin(rad) + y * Math.cos(rad);
-    };
+  const _120 = (Math.PI * 120) / 180;
+  const rad = (Math.PI / 180) * (+angle || 0);
+  let res = [];
+  const rotateX = function (x, y, rad) {
+    return x * Math.cos(rad) - y * Math.sin(rad);
+  };
+  const rotateY = function (x, y, rad) {
+    return x * Math.sin(rad) + y * Math.cos(rad);
+  };
   if (!recursive) {
     x1 = rotateX(x1, y1, -rad);
     y1 = rotateY(x1, y1, -rad);
     x2 = rotateX(x2, y2, -rad);
     y2 = rotateY(x2, y2, -rad);
-    var x = (x1 - x2) / 2,
-      y = (y1 - y2) / 2;
-    var h = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+    const x = (x1 - x2) / 2;
+    const y = (y1 - y2) / 2;
+    let h = (x * x) / (rx * rx) + (y * y) / (ry * ry);
     if (h > 1) {
       h = Math.sqrt(h);
       rx = h * rx;
       ry = h * ry;
     }
-    var rx2 = rx * rx,
-      ry2 = ry * ry,
-      k =
-        (large_arc_flag == sweep_flag ? -1 : 1) *
-        Math.sqrt(
-          Math.abs(
-            (rx2 * ry2 - rx2 * y * y - ry2 * x * x) /
-              (rx2 * y * y + ry2 * x * x)
-          )
-        ),
-      cx = (k * rx * y) / ry + (x1 + x2) / 2,
-      cy = (k * -ry * x) / rx + (y1 + y2) / 2,
-      f1 = Math.asin(((y1 - cy) / ry).toFixed(9)),
-      f2 = Math.asin(((y2 - cy) / ry).toFixed(9));
+    const rx2 = rx * rx;
+    const ry2 = ry * ry;
+    const k =
+      (large_arc_flag == sweep_flag ? -1 : 1) *
+      Math.sqrt(
+        Math.abs(
+          (rx2 * ry2 - rx2 * y * y - ry2 * x * x) / (rx2 * y * y + ry2 * x * x)
+        )
+      );
+    var cx = (k * rx * y) / ry + (x1 + x2) / 2;
+    var cy = (k * -ry * x) / rx + (y1 + y2) / 2;
+    var f1 = Math.asin(((y1 - cy) / ry).toFixed(9));
+    var f2 = Math.asin(((y2 - cy) / ry).toFixed(9));
 
     f1 = x1 < cx ? Math.PI - f1 : f1;
     f2 = x2 < cx ? Math.PI - f2 : f2;
@@ -763,11 +762,11 @@ function a2c(
     cx = recursive[2];
     cy = recursive[3];
   }
-  var df = f2 - f1;
+  let df = f2 - f1;
   if (Math.abs(df) > _120) {
-    var f2old = f2,
-      x2old = x2,
-      y2old = y2;
+    const f2old = f2;
+    const x2old = x2;
+    const y2old = y2;
     f2 = f1 + _120 * (sweep_flag && f2 > f1 ? 1 : -1);
     x2 = cx + rx * Math.cos(f2);
     y2 = cy + ry * Math.sin(f2);
@@ -779,32 +778,31 @@ function a2c(
     ]);
   }
   df = f2 - f1;
-  var c1 = Math.cos(f1),
-    s1 = Math.sin(f1),
-    c2 = Math.cos(f2),
-    s2 = Math.sin(f2),
-    t = Math.tan(df / 4),
-    hx = (4 / 3) * rx * t,
-    hy = (4 / 3) * ry * t,
-    m = [
-      -hx * s1,
-      hy * c1,
-      x2 + hx * s2 - x1,
-      y2 - hy * c2 - y1,
-      x2 - x1,
-      y2 - y1,
-    ];
+  const c1 = Math.cos(f1);
+  const s1 = Math.sin(f1);
+  const c2 = Math.cos(f2);
+  const s2 = Math.sin(f2);
+  const t = Math.tan(df / 4);
+  const hx = (4 / 3) * rx * t;
+  const hy = (4 / 3) * ry * t;
+  const m = [
+    -hx * s1,
+    hy * c1,
+    x2 + hx * s2 - x1,
+    y2 - hy * c2 - y1,
+    x2 - x1,
+    y2 - y1,
+  ];
   if (recursive) {
     return m.concat(res);
-  } else {
-    res = m.concat(res);
-    var newres = [];
-    for (var i = 0, n = res.length; i < n; i++) {
-      newres[i] =
-        i % 2
-          ? rotateY(res[i - 1], res[i], rad)
-          : rotateX(res[i], res[i + 1], rad);
-    }
-    return newres;
   }
+  res = m.concat(res);
+  const newres = [];
+  for (let i = 0, n = res.length; i < n; i++) {
+    newres[i] =
+      i % 2
+        ? rotateY(res[i - 1], res[i], rad)
+        : rotateX(res[i], res[i + 1], rad);
+  }
+  return newres;
 }

@@ -21,13 +21,13 @@ exports.params = {
   negativeExtraSpace: false,
 };
 
-var cleanupOutData = require('../lib/svgo/tools').cleanupOutData,
-  transform2js = require('./_transforms.js').transform2js,
-  transformsMultiply = require('./_transforms.js').transformsMultiply,
-  matrixToTransform = require('./_transforms.js').matrixToTransform,
-  degRound,
-  floatRound,
-  transformRound;
+const { cleanupOutData } = require('../lib/svgo/tools');
+const { transform2js } = require('./_transforms.js');
+const { transformsMultiply } = require('./_transforms.js');
+const { matrixToTransform } = require('./_transforms.js');
+let degRound;
+let floatRound;
+let transformRound;
 
 /**
  * Convert matrices to the short aliases,
@@ -70,7 +70,7 @@ exports.fn = function (item, params) {
  * @param {Object} params plugin params
  */
 function convertTransform(item, attrName, params) {
-  var data = transform2js(item.attr(attrName).value);
+  let data = transform2js(item.attr(attrName).value);
   params = definePrecision(data, params);
 
   if (params.collapseIntoOne && data.length > 1) {
@@ -106,11 +106,11 @@ function convertTransform(item, attrName, params) {
  * @return {Array} output array
  */
 function definePrecision(data, params) {
-  var matrixData = data.reduce(getMatrixData, []),
-    significantDigits = params.transformPrecision;
+  const matrixData = data.reduce(getMatrixData, []);
+  let significantDigits = params.transformPrecision;
 
   // Clone params so it don't affect other elements transformations.
-  params = Object.assign({}, params);
+  params = { ...params };
 
   // Limit transform precision with matrix one. Calculating with larger precision doesn't add any value.
   if (matrixData.length) {
@@ -122,7 +122,7 @@ function definePrecision(data, params) {
 
     significantDigits = Math.max.apply(
       Math,
-      matrixData.map(function (n) {
+      matrixData.map((n) => {
         return String(n).replace(/\D+/g, '').length; // Number of digits in a number. 123.45 → 5
       })
     );
@@ -177,12 +177,12 @@ function floatDigits(n) {
  * @return {Array} output array
  */
 function convertToShorts(transforms, params) {
-  for (var i = 0; i < transforms.length; i++) {
-    var transform = transforms[i];
+  for (let i = 0; i < transforms.length; i++) {
+    let transform = transforms[i];
 
     // convert matrix to the short aliases
     if (params.matrixToTransform && transform.name === 'matrix') {
-      var decomposed = matrixToTransform(transform, params);
+      const decomposed = matrixToTransform(transform, params);
       if (
         decomposed != transform &&
         js2transform(decomposed, params).length <=
@@ -254,10 +254,10 @@ function convertToShorts(transforms, params) {
  * @return {Array} output array
  */
 function removeUseless(transforms) {
-  return transforms.filter(function (transform) {
+  return transforms.filter((transform) => {
     // translate(0), rotate(0[, cx, cy]), skewX(0), skewY(0)
     if (
-      (['translate', 'rotate', 'skewX', 'skewY'].indexOf(transform.name) > -1 &&
+      (['translate', 'rotate', 'skewX', 'skewY'].includes(transform.name) &&
         (transform.data.length == 1 || transform.name == 'rotate') &&
         !transform.data[0]) ||
       // translate(0, 0)
@@ -294,10 +294,10 @@ function removeUseless(transforms) {
  * @return {String} output string
  */
 function js2transform(transformJS, params) {
-  var transformString = '';
+  let transformString = '';
 
   // collect output value string
-  transformJS.forEach(function (transform) {
+  transformJS.forEach((transform) => {
     roundTransform(transform);
     transformString +=
       (transformString && ' ') +
@@ -357,13 +357,13 @@ function round(data) {
  */
 function smartRound(precision, data) {
   for (
-    var i = data.length,
+    let i = data.length,
       tolerance = +Math.pow(0.1, precision).toFixed(precision);
     i--;
 
   ) {
     if (data[i].toFixed(precision) != data[i]) {
-      var rounded = +data[i].toFixed(precision - 1);
+      const rounded = +data[i].toFixed(precision - 1);
       data[i] =
         +Math.abs(rounded - data[i]).toFixed(precision + 1) >= tolerance
           ? +data[i].toFixed(precision)

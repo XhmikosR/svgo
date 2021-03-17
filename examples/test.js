@@ -43,7 +43,7 @@ const config = {
   ],
 };
 
-FS.readFile(filepath, 'utf8', function (err, data) {
+FS.readFile(filepath, 'utf8', (err, data) => {
   if (err) {
     throw err;
   }

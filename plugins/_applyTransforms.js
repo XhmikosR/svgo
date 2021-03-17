@@ -41,7 +41,7 @@ const applyTransforms = (elem, pathData, params) => {
   const matrix = transformsMultiply(transform2js(elem.attr('transform').value));
   const stroke = elem.computedAttr('stroke');
   const id = elem.computedAttr('id');
-  const transformPrecision = params.transformPrecision;
+  const { transformPrecision } = params;
 
   if (stroke && stroke != 'none') {
     if (
@@ -137,8 +137,8 @@ const transformRelativePoint = (matrix, x, y) => {
 };
 
 const applyMatrixToPathData = (pathData, matrix) => {
-  let start = [0, 0];
-  let cursor = [0, 0];
+  const start = [0, 0];
+  const cursor = [0, 0];
 
   for (const pathItem of pathData) {
     let { instruction: command, data: args } = pathItem;
